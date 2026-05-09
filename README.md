@@ -205,4 +205,4 @@ This project is released under the MIT License. See `LICENSE` for details.
 
 ## Acknowledgements
 
-WowPage is based on the Academic Pages Jekyll theme and the Minimal Mistakes theme ecosystem. Thanks to the open-source maintainers and contributors who made the original academic homepage template possible.
+We appreciate your use of this template and look forward to your contributions. Contributors are welcome to voluntarily submit homepages built with this template for inclusion in our showcase.
