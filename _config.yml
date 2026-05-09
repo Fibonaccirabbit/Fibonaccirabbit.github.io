@@ -1,21 +1,21 @@
 locale                   : "en-US"
-title                    : "WowPage"
+title                    : "Zhanjiang Yang"
 title_separator          : "-"
-name                     : "Your Name"
-description              : &description "A clean academic homepage template."
-url                      : ""
+name                     : "Zhanjiang Yang"
+description              : &description "Zhanjiang Yang's Academic Homepage"
+url                      : "https://fibonaccirabbit.github.io"
 baseurl                  : ""
-repository               : ""
+repository               : "Fibonaccirabbit/Fibonaccirabbit.github.io"
 
 author:
-  avatar           : "1.png"
-  name             : "Your Name"
+  avatar           : "avatar.jpeg"
+  name             : "Zhanjiang Yang"
   pronouns         :
-  bio              : "Student and researcher."
-  location         : "City, Country"
-  employer         : "Institution or Company"
+  bio              : "天地不仁，以万物为刍狗。"
+  location         : "Shenzhen, China"
+  employer         : "Shenzhen University"
   uri              :
-  email            : "name@example.com"
+  email            : "zhanjiangyang3@gmail.com"
 
   arxiv            :
   googlescholar    :
@@ -28,7 +28,7 @@ author:
   bitbucket        :
   codepen          :
   dribbble         :
-  github           :
+  github           : "Fibonaccirabbit"
   kaggle           :
   stackoverflow    :
 
