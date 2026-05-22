@@ -22,7 +22,7 @@ News
 
 <li><span class="news-date"><em>2025.07</em></span> 🎉🎉 Started my research internship at Huawei on World Models for Embodied AI.</li>
 
-<li><span class="news-date"><em>2025.06</em></span> 🚀🚀 Started working on Foundation Pareto Flow Policy (FP2) for multi-objective RL.</li>
+<!-- <li><span class="news-date"><em>2025.06</em></span> 🚀🚀 Started working on Foundation Pareto Flow Policy (FP2) for multi-objective RL.</li> -->
 
 <li><span class="news-date"><em>2025.03</em></span> 🚀🚀 Started working on MAPF-World: Action World Model for Multi-Agent Path Finding.</li>
 
@@ -130,7 +130,7 @@ Projects
   </div>
 </div>
 
-<div class="project-card" data-category="project">
+<!-- <div class="project-card" data-category="project">
   <div style="display: flex; align-items: center;">
     <div class="pub-media-rotator" data-interval="4000" style="position: relative; width: 320px; height: 180px; margin-right: 20px; border-radius: 8px; overflow: hidden; flex: 0 0 auto;">
       <img src="images/fp2.png" alt="FP2" style="width: 320px; height: 180px; object-fit: contain; display: block; margin: 0 auto;">
@@ -142,7 +142,7 @@ Projects
       <br>
     </div>
   </div>
-</div>
+</div> -->
 
 <div class="project-card" data-category="project">
   <div style="display: flex; align-items: center;">
