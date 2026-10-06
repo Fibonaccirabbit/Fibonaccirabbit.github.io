@@ -16,9 +16,25 @@ const papers = readdirSync('content/publications').filter(name => name.endsWith(
 page.on('pageerror', error => errors.push(error.message))
 
 try {
+  await page.goto(origin)
+  await page.getByRole('button', { name: 'Switch language' }).waitFor()
+  assert.ok((await page.locator('body').innerText()).includes("I am a master's student"), 'A Chinese browser must start in English')
+  await page.evaluate(() => {
+    localStorage.removeItem('termhubLanguage')
+    localStorage.setItem('i18nextLng', 'zh')
+  })
+  await page.reload()
+  await page.getByRole('button', { name: 'Switch language' }).waitFor()
+  assert.equal(await page.evaluate(() => localStorage.getItem('termhubLanguage')), 'en', 'Legacy automatic language cache must not override the English default')
+  await page.getByRole('button', { name: 'Switch language' }).click()
+  await page.getByRole('button', { name: '切换语言' }).waitFor()
+  await page.reload()
+  await page.getByRole('button', { name: '切换语言' }).waitFor()
+  assert.equal(await page.evaluate(() => localStorage.getItem('termhubLanguage')), 'zh', 'A manual language choice must persist across reloads')
+
   for (const language of ['zh', 'en']) {
     await page.goto(origin)
-    await page.evaluate(language => localStorage.setItem('i18nextLng', language), language)
+    await page.evaluate(language => localStorage.setItem('termhubLanguage', language), language)
     for (const width of [320, 375, 390, 768, 1440]) {
       await page.setViewportSize({ width, height: width < 768 ? 844 : 1000 })
       for (const path of paths) {
@@ -123,7 +139,7 @@ try {
   await page.goto(`${origin}/articles/no-such-post`)
   await page.getByText('Post not found', { exact: true }).waitFor()
   assert.deepEqual(errors, [], 'No browser runtime errors are allowed')
-  console.log(`Passed: ${paths.length} routes, 2 languages, 5 widths, 7 paper resource links, publication filters, keyboard expansion, controls, themes, navigation, search${includeDrafts ? ', article reading, and video playback' : ''}.`)
+  console.log(`Passed: English default, legacy-cache migration, saved language choice, ${paths.length} routes, 2 languages, 5 widths, 7 paper resource links, publication filters, keyboard expansion, controls, themes, navigation, search${includeDrafts ? ', article reading, and video playback' : ''}.`)
 } finally {
   await browser.close()
 }
