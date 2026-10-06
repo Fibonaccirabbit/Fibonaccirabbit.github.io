@@ -4,7 +4,6 @@ import {
   VStack,
   HStack,
   Text,
-  Link,
   useColorModeValue,
   Flex,
   Badge,
@@ -14,7 +13,6 @@ import {
   Icon,
   IconButton,
   Collapse,
-  Tooltip,
   SimpleGrid,
   Stat,
   StatLabel,
@@ -30,7 +28,10 @@ import {
   ModalCloseButton
 } from '@chakra-ui/react'
 import { keyframes } from '@emotion/react'
-import { getPublicationStats } from '../data'
+import { comparePublicationDates, getPublicationStats } from '../data'
+import { useTranslation } from 'react-i18next'
+import { AddIcon, MinusIcon } from '@chakra-ui/icons'
+import PublicationLinks from './PublicationLinks'
 import { useLocalizedData } from '@/hooks/useLocalizedData'
 import { FaChartBar, FaVideo, FaProjectDiagram, FaFileAlt, FaAtom, FaStar, FaRobot, FaGlobe, FaHandRock, FaCloudSun, FaFutbol } from 'react-icons/fa'
 import { IconType } from 'react-icons'
@@ -58,6 +59,7 @@ const blink = keyframes`
 
 
 const PublicationsTerminal: React.FC = () => {
+  const { t } = useTranslation()
   const { colorMode } = useColorMode()
   const isDark = colorMode === 'dark'
   const { publications, siteOwner } = useLocalizedData()
@@ -131,10 +133,7 @@ const PublicationsTerminal: React.FC = () => {
     }
     
     // Sort by year (newest first), then by month
-    filtered.sort((a, b) => {
-      if (b.year !== a.year) return b.year - a.year
-      return 0
-    })
+    filtered.sort(comparePublicationDates)
     
     return filtered
   }, [publications, searchQuery, selectedYear, selectedVenue])
@@ -237,13 +236,13 @@ const PublicationsTerminal: React.FC = () => {
             fontSize="xs"
             fontWeight="medium"
           >
-            <HStack spacing={3}>
-              <HStack spacing={1.5}>
+            <HStack spacing={3} minW={0} flex={1}>
+              <HStack spacing={1.5} flexShrink={0}>
                 <Box w="10px" h="10px" borderRadius="full" bg="#bf616a" />
                 <Box w="10px" h="10px" borderRadius="full" bg="#ebcb8b" />
                 <Box w="10px" h="10px" borderRadius="full" bg="#a3be8c" />
               </HStack>
-              <Text>
+              <Text minW={0} overflowWrap="anywhere">
                 <Box as="span" color={termParam}>const </Box>
                 <Box as="span" color={termPrompt} fontWeight="bold">papers</Box>
                 <Box as="span" color={termSecondary}> = </Box>
@@ -254,7 +253,7 @@ const PublicationsTerminal: React.FC = () => {
                 <Box as="span" color={termSecondary}>)</Box>
               </Text>
             </HStack>
-            <Text color={termHighlight}>{formattedTime}</Text>
+            <Text color={termHighlight} display={{ base: 'none', md: 'block' }} flexShrink={0} ml={3}>{formattedTime}</Text>
           </Flex>
 
           {/* ═══ Touch bar ═══ */}
@@ -266,9 +265,9 @@ const PublicationsTerminal: React.FC = () => {
             fontSize="2xs"
             align="center"
             justify="space-between"
-            overflow="hidden"
+            gap={3}
           >
-            <Text color={termSecondary} isTruncated>
+            <Text color={termSecondary} minW={0} flex={1}>
               <Text as="span" color={termPrompt} fontWeight="bold">{siteOwner.terminalUsername}</Text>
               <Text as="span" color={tc.border}> · </Text>
               <Text as="span" color={termHighlight}>{stats.total}</Text>
@@ -279,7 +278,7 @@ const PublicationsTerminal: React.FC = () => {
               <Text as="span" color={tc.border}> · </Text>
               <Text as="span" color={termParam}>{stats.withCode} open-source</Text>
             </Text>
-            <Text color={termCommand} flexShrink={0}>~/papers</Text>
+            <Text color={termCommand} flexShrink={0} display={{ base: 'none', md: 'block' }}>~/papers</Text>
           </Flex>
           
           {/* Stats Dashboard */}
@@ -309,16 +308,16 @@ const PublicationsTerminal: React.FC = () => {
                 <Stat size="sm">
                   <StatLabel color={termInfo}>Conferences</StatLabel>
                   <StatNumber color={termParam}>{stats.byVenue.conference || 0}</StatNumber>
-                  <StatHelpText>Main Track</StatHelpText>
-                </Stat>
-                <Stat size="sm">
-                  <StatLabel color={termInfo}>Workshops</StatLabel>
-                  <StatNumber color={termWarning}>{stats.byVenue.workshop || 0}</StatNumber>
                   <StatHelpText>Papers</StatHelpText>
                 </Stat>
                 <Stat size="sm">
-                  <StatLabel color={termInfo}>2025</StatLabel>
-                  <StatNumber color={termError}>{stats.byYear[2025] || 0}</StatNumber>
+                  <StatLabel color={termInfo}>Published</StatLabel>
+                  <StatNumber color={termWarning}>{stats.published}</StatNumber>
+                  <StatHelpText>{stats.accepted} accepted</StatHelpText>
+                </Stat>
+                <Stat size="sm">
+                  <StatLabel color={termInfo}>{availableYears[0] || '-'}</StatLabel>
+                  <StatNumber color={termError}>{stats.byYear[availableYears[0]] || 0}</StatNumber>
                   <StatHelpText>Latest</StatHelpText>
                 </Stat>
               </SimpleGrid>
@@ -334,6 +333,7 @@ const PublicationsTerminal: React.FC = () => {
           >
             <Flex gap={2} align="center" flexWrap="wrap">
               <Input
+                aria-label="Search publications"
                 placeholder="grep -i 'robotics' papers/*"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -348,6 +348,7 @@ const PublicationsTerminal: React.FC = () => {
               />
               
               <Select
+                aria-label="Filter publication year"
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(e.target.value)}
                 size="sm"
@@ -364,6 +365,7 @@ const PublicationsTerminal: React.FC = () => {
               </Select>
               
               <Select
+                aria-label="Filter publication venue"
                 value={selectedVenue}
                 onChange={(e) => setSelectedVenue(e.target.value)}
                 size="sm"
@@ -374,6 +376,7 @@ const PublicationsTerminal: React.FC = () => {
                 fontFamily="mono"
               >
                 <option value="all">All Venues</option>
+                <option value="journal">Journals</option>
                 <option value="conference">Conferences</option>
                 <option value="workshop">Workshops</option>
                 <option value="demo">Demo</option>
@@ -417,16 +420,17 @@ const PublicationsTerminal: React.FC = () => {
               fontWeight="bold"
               color={termInfo}
             >
-              {!isMobile && <Text w="320px" mr={6}>PREVIEW</Text>}
+              {!isMobile && filteredPublications.some(pub => pub.featuredImage) && <Text w="320px" mr={6}>PREVIEW</Text>}
               <Text flex="1">PUBLICATION</Text>
-              {!isMobile && <Text w="150px">RESOURCES</Text>}
-              <Text w="50px" textAlign="center">MORE</Text>
+              {!isMobile && <Text w="180px">RESOURCES</Text>}
+              <Text w="40px" textAlign="center">MORE</Text>
             </Flex>
             
             {/* Publications */}
             {filteredPublications.map((pub) => (
               <Box
                 key={pub.id}
+                data-publication-id={pub.id}
                 borderBottom={`1px dotted ${termBorder}`}
                 _hover={{
                   bg: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'
@@ -441,7 +445,7 @@ const PublicationsTerminal: React.FC = () => {
                   onClick={() => toggleExpanded(pub.id)}
                   fontSize="sm"
                   position="relative"
-                  minH="200px"
+                  minH={pub.featuredImage ? '200px' : '140px'}
                 >
                   {/* Featured Image Thumbnail */}
                   {pub.featuredImage && !isMobile && (
@@ -484,7 +488,7 @@ const PublicationsTerminal: React.FC = () => {
                   )}
                   
                   {/* Title & Authors */}
-                  <Box flex="1" pr={2}>
+                  <Box flex="1" minW={0} pr={2}>
                     <HStack spacing={1} mb={1} flexWrap="wrap">
                       {pub.emoji && emojiIconMap[pub.emoji] && (
                         <Icon as={emojiIconMap[pub.emoji]} boxSize="14px" color={venueColors[pub.venueType].fg} mr={1} flexShrink={0} />
@@ -508,6 +512,7 @@ const PublicationsTerminal: React.FC = () => {
                           ? pub.venue
                           : `${pub.venue} ${pub.year}`}
                       </Badge>
+                      {pub.status === 'accepted' && <Badge colorScheme="orange" fontSize="2xs">{t('about.accepted')}</Badge>}
                       
                       {/* Venue Type Badge */}
                       <Badge
@@ -579,47 +584,26 @@ const PublicationsTerminal: React.FC = () => {
                         </Text>
                       )}
                     </Text>
+                    {isMobile && <Box mt={3}><PublicationLinks links={pub.links} compact /></Box>}
                   </Box>
                   
                   {/* Resources */}
                   {!isMobile && (
-                    <HStack w="150px" spacing={1}>
-                      {pub.links.paper && (
-                        <Tooltip label="Paper">
-                          <Link href={pub.links.paper} isExternal onClick={(e) => e.stopPropagation()}>
-                            <Badge colorScheme="blue" fontSize="2xs">PDF</Badge>
-                          </Link>
-                        </Tooltip>
-                      )}
-                      {pub.links.code && (
-                        <Tooltip label="Code">
-                          <Link href={pub.links.code} isExternal onClick={(e) => e.stopPropagation()}>
-                            <Badge colorScheme="green" fontSize="2xs">CODE</Badge>
-                          </Link>
-                        </Tooltip>
-                      )}
-                      {pub.links.projectPage && (
-                        <Tooltip label="Project">
-                          <Link href={pub.links.projectPage} isExternal onClick={(e) => e.stopPropagation()}>
-                            <Badge colorScheme="purple" fontSize="2xs">PROJ</Badge>
-                          </Link>
-                        </Tooltip>
-                      )}
-                      {Object.keys(pub.links).length > 3 && (
-                        <Badge colorScheme="gray" fontSize="2xs">+{Object.keys(pub.links).length - 3}</Badge>
-                      )}
-                    </HStack>
+                    <Box w="180px" flexShrink={0}><PublicationLinks links={pub.links} compact /></Box>
                   )}
                   
                   {/* Expand Button */}
-                  <Text
-                    w="50px"
-                    textAlign="center"
+                  <IconButton
+                    aria-label={`${expandedItems[pub.id] ? 'Hide' : 'Show'} details: ${pub.title}`}
+                    aria-expanded={!!expandedItems[pub.id]}
+                    icon={expandedItems[pub.id] ? <MinusIcon /> : <AddIcon />}
+                    variant="ghost"
+                    size="sm"
+                    w="40px"
+                    flexShrink={0}
                     color={expandedItems[pub.id] ? termInfo : termCommand}
-                    fontWeight="bold"
-                  >
-                    {expandedItems[pub.id] ? '[-]' : '[+]'}
-                  </Text>
+                    onClick={event => { event.stopPropagation(); toggleExpanded(pub.id) }}
+                  />
                 </Flex>
                 
                 {/* Expanded Details */}
@@ -666,28 +650,7 @@ const PublicationsTerminal: React.FC = () => {
                           <Text fontSize="xs" color={termInfo} mb={2}>
                             ── RESOURCES ────────────
                           </Text>
-                          <Flex flexWrap="wrap" gap={2}>
-                            {Object.entries(pub.links).map(([key, url]) => url && (
-                              <Link key={key} href={url} isExternal>
-                                <Badge
-                                  colorScheme={
-                                    key === 'code' ? 'green' :
-                                    key === 'paper' || key === 'arxiv' ? 'blue' :
-                                    key === 'projectPage' ? 'purple' :
-                                    key === 'demo' ? 'orange' :
-                                    key === 'dataset' ? 'teal' :
-                                    'gray'
-                                  }
-                                  fontSize="xs"
-                                  px={2}
-                                  py={1}
-                                  textTransform="capitalize"
-                                >
-                                  {key.replace(/([A-Z])/g, ' $1').trim()}
-                                </Badge>
-                              </Link>
-                            ))}
-                          </Flex>
+                          <PublicationLinks links={pub.links} />
                         </Box>
                       </Box>
                       

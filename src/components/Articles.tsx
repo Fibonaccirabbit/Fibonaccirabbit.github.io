@@ -1,8 +1,9 @@
 import React, { useMemo, useState, useEffect } from 'react'
 import {
-  Box, Collapse, Flex, HStack, Icon, Input, Link, Select, Text, VStack,
+  Box, Collapse, Flex, HStack, Icon, IconButton, Input, Link, Select, Text, VStack,
   useColorMode, useColorModeValue,
 } from '@chakra-ui/react'
+import { AddIcon, MinusIcon } from '@chakra-ui/icons'
 import { keyframes } from '@emotion/react'
 import { IconType } from 'react-icons'
 import {
@@ -10,6 +11,7 @@ import {
 } from 'react-icons/fa'
 import { SiZhihu, SiCsdn } from 'react-icons/si'
 import { useTranslation } from 'react-i18next'
+import { Link as RouterLink } from 'react-router-dom'
 import type { ProjectItem } from '../types'
 import { highlightData } from '../utils/highlightData'
 import { useLocalizedData } from '@/hooks/useLocalizedData'
@@ -179,7 +181,7 @@ const Articles: React.FC = () => {
                 <Box w="10px" h="10px" borderRadius="full" bg="#ebcb8b" />
                 <Box w="10px" h="10px" borderRadius="full" bg="#a3be8c" />
               </HStack>
-              <Text>
+              <Text fontSize={['2xs', 'xs']}>
                 <Box as="span" color={termParam}>const </Box>
                 <Box as="span" color={termPrompt} fontWeight="bold">articles</Box>
                 <Box as="span" color={termSecondary}> = </Box>
@@ -190,7 +192,7 @@ const Articles: React.FC = () => {
                 <Box as="span" color={termSecondary}>)</Box>
               </Text>
             </HStack>
-            <Text color={termHighlight}>{formattedTime}</Text>
+            <Text color={termHighlight} display={{ base: 'none', sm: 'block' }}>{formattedTime}</Text>
           </Flex>
 
           {/* ═══ Touch bar ═══ */}
@@ -217,16 +219,18 @@ const Articles: React.FC = () => {
           {/* ═══ Toolbar ═══ */}
           <Flex
             px={4} py={2} bg={termBg} borderBottom={`1px solid ${termBorder}`}
-            align="center" gap={2} fontSize="xs"
+            align="center" gap={2} fontSize="xs" wrap={{ base: 'wrap', md: 'nowrap' }}
           >
-            <Text color={termPrompt} flexShrink={0}>{siteOwner.terminalUsername}@blog:{promptPath}$</Text>
+            <Text color={termPrompt} flexShrink={0} w={{ base: 'full', md: 'auto' }}>{siteOwner.terminalUsername}@blog:{promptPath}$</Text>
             <Input
+              aria-label={t('articles.search', 'Search blog')}
               placeholder="grep -i '...'"
               value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
               size="xs" variant="unstyled" color={termText} fontFamily="mono"
-              flex="1" minW="120px" _placeholder={{ color: termSecondary }}
+              flex="1" minW="80px" _placeholder={{ color: termSecondary }}
             />
             <Select
+              aria-label={t('articles.allTopics')}
               value={selectedCategory}
               onChange={e => setSelectedCategory(e.target.value as CategoryFilter)}
               size="xs"
@@ -300,7 +304,7 @@ const Articles: React.FC = () => {
                             onClick={() => toggleExpanded(item.id)}
                           >
                             {/* Date */}
-                            <Text w={["70px", "90px"]} fontSize="xs" color={termHighlight} flexShrink={0}>
+                            <Text w={["70px", "90px"]} fontSize="xs" color={termHighlight} flexShrink={0} display={{ base: 'none', sm: 'block' }}>
                               {fmtDate(item.date)}
                             </Text>
 
@@ -325,9 +329,11 @@ const Articles: React.FC = () => {
 
                             {/* Title + type */}
                             <Box flex="1" px={[2, 3]} minW={0}>
-                              <Text fontWeight="medium" color={termText} isTruncated>
+                              <Text display={{ base: 'block', sm: 'none' }} fontSize="2xs" color={termHighlight} mb={1}>{fmtDate(item.date)}</Text>
+                              <Link as={RouterLink} to={`/articles/${item.slug}`} onClick={event => event.stopPropagation()} fontWeight="medium" color={termText} display="block" lineHeight="1.6">
                                 {item.title}
-                              </Text>
+                              </Link>
+                              {item.draft && <Text fontSize="2xs" color={termHighlight} mt={1}>{t('articles.draft')}</Text>}
                               {articleType && (
                                 <Text fontSize="2xs" color={termSecondary} mt={0.5}>
                                   {articleType}
@@ -356,19 +362,20 @@ const Articles: React.FC = () => {
                             </HStack>
 
                             {/* Expand */}
-                            <Flex w="40px" justify="center" flexShrink={0}>
-                              <Box
-                                color={isExpanded ? termInfo : termCommand}
-                                fontWeight="bold"
-                                fontSize="xs"
-                              >
-                                {isExpanded ? '[-]' : '[+]'}
-                              </Box>
-                            </Flex>
+                            <IconButton
+                              aria-label={t(isExpanded ? 'articles.collapse' : 'articles.expand')}
+                              title={t(isExpanded ? 'articles.collapse' : 'articles.expand')}
+                              aria-expanded={!!isExpanded}
+                              aria-controls={`${item.id}-details`}
+                              icon={isExpanded ? <MinusIcon boxSize={2.5} /> : <AddIcon boxSize={2.5} />}
+                              color={isExpanded ? termInfo : termCommand}
+                              variant="ghost" size="xs" flexShrink={0}
+                              onClick={event => { event.stopPropagation(); toggleExpanded(item.id) }}
+                            />
                           </Flex>
 
                           {/* Expanded details */}
-                          <Collapse in={isExpanded} animateOpacity>
+                          <Collapse id={`${item.id}-details`} in={isExpanded} animateOpacity>
                             <Box
                               px={[3, 4, 8]}
                               py={3}
@@ -395,6 +402,9 @@ const Articles: React.FC = () => {
                               )}
 
                               {/* All links (visible on all screens when expanded) */}
+                              <Link as={RouterLink} to={`/articles/${item.slug}`} display="inline-flex" alignItems="center" gap={2} fontSize="xs" color={termCommand} mb={2}>
+                                <Icon as={FaExternalLinkAlt} boxSize="10px" /> {t('articles.read')}
+                              </Link>
                               {resources.length > 0 && (
                                 <Flex wrap="wrap" gap={2}>
                                   {resources.map(r => (

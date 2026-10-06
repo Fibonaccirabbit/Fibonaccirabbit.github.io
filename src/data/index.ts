@@ -14,7 +14,7 @@
 
 import type {
   Research, Experience, NewsItem, About, Publication,
-  ProjectItem, Award, ExperienceEntry, Talk, TeachingEntry,
+  ProjectItem, ArticleItem, Award, ExperienceEntry, Talk, TeachingEntry,
 } from '../types'
 
 // ── Markdown glob imports (each .md → { frontmatter..., body: html }) ──
@@ -32,10 +32,15 @@ const publicationMdsZh = import.meta.glob('/content/zh/publications/*.md', { eag
 const aboutMdZh = import.meta.glob('/content/zh/about.md', { eager: true }) as Record<string, { default: Record<string, unknown> }>
 
 function collectMd(modules: Record<string, { default: Record<string, unknown> }>): Record<string, unknown>[] {
-  return Object.values(modules).map(m => {
+  return Object.values(modules).filter(m => !m.default.hidden).map(m => {
     const { body, ...frontmatter } = m.default
     return { ...frontmatter, _body: body }
   })
+}
+
+function mdToArticle(raw: Record<string, unknown>): ArticleItem {
+  const { _body, ...rest } = raw
+  return { ...mdToProject(raw), ...rest, body: String(_body || '') } as unknown as ArticleItem
 }
 
 // Convert Markdown body into the fields components expect
@@ -72,7 +77,7 @@ function mdToPublication(raw: Record<string, unknown>): Publication {
 function mdToAbout(raw: Record<string, unknown>): About {
   const { _body, ...rest } = raw
   const bodyStr = (_body as string) || ''
-  const journey = bodyStr.replace(/<[^>]+>/g, '').trim()
+  const journey = new DOMParser().parseFromString(bodyStr, 'text/html').body.textContent?.trim() || ''
   return { journey, ...rest } as unknown as About
 }
 
@@ -100,9 +105,9 @@ import teachingJsonZh from '@content/zh/teaching.json'
 
 const enData = {
   projects: collectMd(projectMdsEn).map(mdToProject),
-  articles: collectMd(articleMdsEn).map(mdToProject),
+  articles: collectMd(articleMdsEn).map(mdToArticle),
   publications: collectMd(publicationMdsEn).map(mdToPublication),
-  about: mdToAbout(Object.values(aboutMdEn)[0]?.default ?? {}),
+  about: mdToAbout(collectMd(aboutMdEn)[0] ?? {}),
   research: researchJsonEn as Research,
   experience: { ...experienceJsonEn, professional: [], academic: [] } as Experience,
   experienceTimeline: experienceJsonEn.timeline as ExperienceEntry[],
@@ -116,9 +121,9 @@ const enData = {
 
 const zhData = {
   projects: collectMd(projectMdsZh).map(mdToProject),
-  articles: collectMd(articleMdsZh).map(mdToProject),
+  articles: collectMd(articleMdsZh).map(mdToArticle),
   publications: collectMd(publicationMdsZh).map(mdToPublication),
-  about: mdToAbout(Object.values(aboutMdZh)[0]?.default ?? {}),
+  about: mdToAbout(collectMd(aboutMdZh)[0] ?? {}),
   research: researchJsonZh as Research,
   experience: { ...experienceJsonZh, professional: [], academic: [] } as Experience,
   experienceTimeline: experienceJsonZh.timeline as ExperienceEntry[],
@@ -144,6 +149,10 @@ export function getLocalizedData(lang: string) {
 export const projects = enData.projects
 export const articles = enData.articles
 export const publications = enData.publications
+
+const publicationMonths = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+export const comparePublicationDates = (a: Publication, b: Publication) =>
+  b.year - a.year || publicationMonths.indexOf(b.month || '') - publicationMonths.indexOf(a.month || '') || a.title.localeCompare(b.title)
 export const about = enData.about
 export const research = enData.research
 export const experience = enData.experience
@@ -168,6 +177,8 @@ export const getFirstAuthorPublications = () =>
 export const getPublicationStats = () => {
   const stats = {
     total: publications.length,
+    published: 0,
+    accepted: 0,
     byYear: {} as Record<number, number>,
     byVenue: {} as Record<string, number>,
     firstAuthor: 0,
@@ -176,6 +187,8 @@ export const getPublicationStats = () => {
     withDataset: 0,
   }
   publications.forEach(pub => {
+    if (pub.status === 'published') stats.published++
+    if (pub.status === 'accepted') stats.accepted++
     stats.byYear[pub.year] = (stats.byYear[pub.year] || 0) + 1
     stats.byVenue[pub.venueType] = (stats.byVenue[pub.venueType] || 0) + 1
     if (pub.isFirstAuthor) stats.firstAuthor++

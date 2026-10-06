@@ -14,12 +14,19 @@ import { marked } from 'marked'
 import type { Plugin } from 'vite'
 
 export default function markdownPlugin(): Plugin {
+  let includeDrafts = false
   return {
     name: 'vite-plugin-markdown',
+    configResolved(config) {
+      includeDrafts = config.command === 'serve' || process.env.PREVIEW_DRAFTS === 'true'
+    },
     transform(code: string, id: string) {
       if (!id.endsWith('.md')) return null
 
       const { data, content } = matter(code)
+      if (data.draft && !includeDrafts) {
+        return { code: 'export default { hidden: true }', map: null }
+      }
       const body = marked.parse(content.trim()) as string
 
       const result = { ...data, body }

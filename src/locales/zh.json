@@ -14,6 +14,9 @@
     "toggleLanguage": "切换语言"
   },
   "about": {
+    "bio": "个人简介",
+    "skills": "技术栈与资质",
+    "contact": "联系方式",
     "recentUpdates": "最新动态",
     "news": "动态",
     "selectedPublications": "精选论文",
@@ -24,6 +27,8 @@
     "abstract": "摘要",
     "paper": "论文",
     "arXiv": "arXiv",
+    "scholar": "谷歌学术",
+    "accepted": "已接收",
     "project": "项目",
     "code": "代码",
     "demo": "演示",
@@ -33,6 +38,8 @@
     "categories": "个类别"
   },
   "hero": {
+    "currentResearch": "研究方向",
+    "education": "教育经历",
     "greeting": "你好，我是",
     "sometimesI": "我有时会"
   },
@@ -45,7 +52,7 @@
     "present": "至今",
     "rolesAcross": "个职位，横跨学术界与工业界，",
     "currentlyActive": "个当前在职",
-    "research": "个学术",
+    "research": "个学术/社团",
     "industry": "个工业",
     "filterAll": "全部",
     "filterAcademic": "学术",
@@ -53,15 +60,17 @@
     "active": "在职",
     "noPositions": "没有匹配当前筛选条件的职位。",
     "typeHelp": "type 'help'",
-    "roleResearch": "Research",
-    "roleMLE": "MLE",
-    "roleSDE": "SDE",
-    "roleTeaching": "Teaching",
-    "roleLeadership": "Leadership"
+    "roleResearch": "研究",
+    "roleMLE": "机器学习工程",
+    "roleSDE": "软件开发",
+    "roleTeaching": "教学",
+    "roleLeadership": "组织工作"
   },
   "projects": {
+    "contributor": "参与开发",
+    "collaborative": "个合作项目",
     "all": "全部",
-    "projectsAcross": "个项目，涵盖机器人、NLP 和 Web，",
+    "projectsAcross": "个研究与工程项目，",
     "independentlyBuilt": "个独立完成",
     "independent": "独立",
     "lead": "负责人",
@@ -79,11 +88,19 @@
     "allTopics": "全部主题",
     "article": "篇文章",
     "articles": "篇文章",
-    "technicalArticles": "篇技术文章与教程，涵盖",
+    "technicalArticles": "篇笔记与实验记录，涵盖",
     "domains": "个领域",
     "noMatches": "grep: no matches found",
     "tryAdjustingFilter": "尝试调整搜索或筛选条件。",
-    "shown": "shown"
+    "shown": "显示",
+    "read": "阅读全文",
+    "search": "搜索博客",
+    "expand": "展开摘要",
+    "collapse": "收起摘要",
+    "draft": "本地草稿",
+    "back": "返回博客",
+    "notFound": "没有找到这篇文章",
+    "notFoundDescription": "这篇文章可能是本地草稿，或还没有发布。"
   },
   "contact": {
     "title": "联系方式",

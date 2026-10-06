@@ -1,27 +1,9 @@
 [
-  {
-    "title": "最佳搭档奖 — Cookie & Lucas 玩耍大赛",
-    "org": "客厅锦标赛",
-    "date": "Dec 2024",
-    "kind": "competition"
-  },
-  {
-    "title": "邻里握手大赛冠军",
-    "org": "狗公园社区",
-    "date": "Apr 2024",
-    "kind": "hackathon"
-  },
-  {
-    "title": "毛茸茸伙伴奖学金",
-    "org": "国家零食基金会",
-    "date": "Sep 2023",
-    "kind": "scholarship",
-    "link": "#"
-  },
-  {
-    "title": "最佳撒娇奖（毕业班前 5%）",
-    "org": "温馨小窝学院",
-    "date": "May 2022",
-    "kind": "honor"
-  }
+  { "title": "松山湖杯二等奖", "org": "第一届中国研究生操作系统开源创新大赛", "date": "2024", "kind": "competition" },
+  { "title": "挑战杯全国竞赛一等奖", "org": "第十八届揭榜挂帅专项赛，疲劳驾驶识别华为云赛道", "date": "2023", "kind": "competition" },
+  { "title": "开源大使", "org": "开放原子开源基金会", "date": "2023", "kind": "honor" },
+  { "title": "全国大学生数学建模竞赛全国一等奖", "org": "古代玻璃制品的成分分析与鉴别", "date": "2022", "kind": "competition" },
+  { "title": "OpenHarmony 学生挑战赛一等奖", "org": "开源成长计划，药物配送机器人项目", "date": "2022", "kind": "competition" },
+  { "title": "华数杯全国大学生数学建模竞赛一等奖", "date": "2022", "kind": "competition" },
+  { "title": "强国杯一等奖", "org": "药物配送机器人项目", "date": "2022", "kind": "competition" }
 ]

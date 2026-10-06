@@ -21,6 +21,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Configure Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -30,10 +34,16 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Verify profile content
+        run: |
+          npm run validate
+          npm run test:profile
+
       - name: Build
         run: npm run build
         env:
-          BASE_URL: /${{ github.event.repository.name }}/
+          BASE_URL: ${{ steps.pages.outputs.base_path }}/
+          VITE_SITE_TITLE: Zhanjiang Yang | Research & Blog
 
       - name: Ensure SPA fallback and .nojekyll
         run: |

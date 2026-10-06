@@ -4,7 +4,7 @@
     "publications": "Publications",
     "experience": "Experience",
     "projects": "Projects",
-    "articles": "Articles",
+    "articles": "Blog",
     "guide": "Guide",
     "navigation": "Navigation"
   },
@@ -14,6 +14,9 @@
     "toggleLanguage": "Switch language"
   },
   "about": {
+    "bio": "About",
+    "skills": "Technical Skills & Qualifications",
+    "contact": "Contact",
     "recentUpdates": "Recent Updates",
     "news": "News",
     "selectedPublications": "Selected Publications",
@@ -24,6 +27,8 @@
     "abstract": "Abstract",
     "paper": "Paper",
     "arXiv": "arXiv",
+    "scholar": "Google Scholar",
+    "accepted": "Accepted",
     "project": "Project",
     "code": "Code",
     "demo": "Demo",
@@ -33,6 +38,8 @@
     "categories": "categories"
   },
   "hero": {
+    "currentResearch": "Current Research",
+    "education": "Education",
     "greeting": "Hi there, I'm",
     "sometimesI": "Sometimes I"
   },
@@ -45,7 +52,7 @@
     "present": "Present",
     "rolesAcross": "roles across academia & industry,",
     "currentlyActive": "currently active",
-    "research": "research",
+    "research": "academic/community",
     "industry": "industry",
     "filterAll": "All",
     "filterAcademic": "Academic",
@@ -60,8 +67,10 @@
     "roleLeadership": "Leadership"
   },
   "projects": {
+    "contributor": "Contributor",
+    "collaborative": "collaborative projects",
     "all": "ALL",
-    "projectsAcross": "projects across robotics, NLP & web,",
+    "projectsAcross": "research and engineering projects,",
     "independentlyBuilt": "independently built",
     "independent": "independent",
     "lead": "lead",
@@ -79,11 +88,19 @@
     "allTopics": "all topics",
     "article": "article",
     "articles": "articles",
-    "technicalArticles": "technical articles & tutorials covering",
+    "technicalArticles": "notes and experiment logs across",
     "domains": "domains",
     "noMatches": "grep: no matches found",
     "tryAdjustingFilter": "Try adjusting your search or filter.",
-    "shown": "shown"
+    "shown": "shown",
+    "read": "Read post",
+    "search": "Search blog",
+    "expand": "Show summary",
+    "collapse": "Hide summary",
+    "draft": "Local draft",
+    "back": "Back to Blog",
+    "notFound": "Post not found",
+    "notFoundDescription": "This post may be a local draft or may not have been published yet."
   },
   "contact": {
     "title": "Contact",

@@ -11,7 +11,7 @@ const ContactSection: React.FC = () => {
 
   const items = [
     siteOwner.contact.email && { icon: 'FaEnvelope', label: t('contact.email', 'Email'), value: siteOwner.contact.email, href: `mailto:${siteOwner.contact.email}` },
-    siteOwner.contact.academicEmail && { icon: 'FaGraduationCap', label: t('contact.academicEmail', 'Academic'), value: siteOwner.contact.academicEmail, href: `mailto:${siteOwner.contact.academicEmail}` },
+    siteOwner.contact.academicEmail && siteOwner.contact.academicEmail !== siteOwner.contact.email && { icon: 'FaGraduationCap', label: t('contact.academicEmail', 'Academic'), value: siteOwner.contact.academicEmail, href: `mailto:${siteOwner.contact.academicEmail}` },
     siteOwner.contact.location && { icon: 'FaMapMarkerAlt', label: t('contact.location', 'Location'), value: siteOwner.contact.location },
     siteOwner.social.github && { icon: 'FaGithub', label: 'GitHub', value: siteOwner.social.github, href: siteOwner.social.github },
     siteOwner.social.linkedin && { icon: 'FaLinkedin', label: 'LinkedIn', value: 'LinkedIn', href: siteOwner.social.linkedin },
@@ -30,11 +30,11 @@ const ContactSection: React.FC = () => {
         </Flex>
         <VStack spacing={2} align="stretch">
           {items.map((item) => (
-            <HStack key={item.label} spacing={3}>
+            <HStack key={item.label} spacing={3} align="start">
               <DynamicIcon name={item.icon} boxSize={3.5} color="cyan.400" />
               <Text fontSize="xs" color={textColor} minW="60px">{item.label}</Text>
               {item.href ? (
-                <Link href={item.href} isExternal fontSize="xs" color={linkColor} fontFamily="mono" _hover={{ color: 'cyan.400' }}>
+                <Link href={item.href} isExternal fontSize="xs" color={linkColor} fontFamily="mono" minW={0} overflowWrap="anywhere" _hover={{ color: 'cyan.400' }}>
                   {item.value}
                 </Link>
               ) : (

@@ -47,7 +47,7 @@ const fmtDateFn = (v: string | undefined, presentLabel: string, lang: string) =>
   if (v.toLowerCase() === 'present') return presentLabel
   const d = new Date(v)
   if (Number.isNaN(d.getTime())) return v
-  return d.toLocaleDateString(lang === 'zh' ? 'zh-CN' : 'en-US', { month: 'short', year: 'numeric' })
+  return d.toLocaleDateString(lang.startsWith('zh') ? 'zh-CN' : 'en-US', { month: 'short', year: 'numeric' })
 }
 
 /* ── Component ─────────────────────────────────────────────────── */
@@ -262,7 +262,7 @@ const Experience: React.FC = () => {
               {education.map(edu => {
                 const logo = institutionLogos[edu.institution]
                 return (
-                  <HStack key={edu.course} fontSize="xs" spacing={2}>
+                  <HStack key={edu.course} fontSize="xs" spacing={2} flexWrap="wrap" rowGap={1}>
                     {logo ? (
                       <Image src={logo} alt="" w="16px" h="16px" borderRadius="sm" objectFit="contain" flexShrink={0} />
                     ) : (
@@ -516,9 +516,9 @@ const Experience: React.FC = () => {
               <VStack align="stretch" spacing={2}>
                 {reviewingByYear.map(([year, items]) => (
                   <HStack key={year} spacing={3} align="start" flexWrap="wrap">
-                    <Text fontSize="xs" fontWeight="bold" color={termHighlight} w="35px" flexShrink={0}>
+                    {year !== 'Other' && <Text fontSize="xs" fontWeight="bold" color={termHighlight} w="45px" flexShrink={0} whiteSpace="nowrap">
                       {year}
-                    </Text>
+                    </Text>}
                     <HStack spacing={1.5} flexWrap="wrap">
                       {items.map((item, idx) => (
                         <Text

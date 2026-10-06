@@ -17,7 +17,7 @@ const Navbar: React.FC = () => {
   const { t, i18n } = useTranslation()
 
   const toggleLanguage = () => {
-    i18n.changeLanguage(i18n.language === 'zh' ? 'en' : 'zh')
+    i18n.changeLanguage(i18n.language.startsWith('zh') ? 'en' : 'zh')
   }
 
   const socialLinks = [
@@ -77,13 +77,13 @@ const Navbar: React.FC = () => {
 
         {/* Desktop nav (right aligned) */}
         <HStack
-          spacing={8}
+          spacing={{ md: 4, lg: 8 }}
           display={{ base: 'none', md: 'flex' }}
           ml="auto"
           mr={{ base: 0, md: 6 }}
         >
           {navItems.map((item) => {
-            const isActive = location.pathname === item.path
+            const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + '/')
 
             return (
               <Link
@@ -109,6 +109,8 @@ const Navbar: React.FC = () => {
             <ChakraLink
               key={link.label}
               href={link.href}
+              aria-label={link.label}
+              title={link.label}
               isExternal
               color="var(--secondary-text)"
               p={1.5}
@@ -145,7 +147,7 @@ const Navbar: React.FC = () => {
             }}
             transition="all 0.2s"
           >
-            {i18n.language === 'zh' ? 'EN' : '中'}
+            {i18n.language.startsWith('zh') ? 'EN' : '中'}
           </Button>
           <IconButton
             aria-label={t('aria.toggleColorMode')}
@@ -212,7 +214,7 @@ const Navbar: React.FC = () => {
                   onClick={toggleLanguage}
                   flex={1}
                 >
-                  {i18n.language === 'zh' ? 'English' : '中文'}
+                  {i18n.language.startsWith('zh') ? 'English' : '中文'}
                 </Button>
                 <IconButton
                   aria-label={t('aria.toggleColorMode')}

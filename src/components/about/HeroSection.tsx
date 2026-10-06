@@ -1,5 +1,6 @@
 import { Box, VStack, Text, useColorModeValue, Image, HStack, Container, Stack, Link, Flex, SimpleGrid, Heading, Tooltip } from '@chakra-ui/react'
 import { motion } from 'framer-motion'
+import { useEffect, useState } from 'react'
 import { withBase } from '@/utils/asset'
 import DynamicIcon from '../DynamicIcon'
 import { useTranslation } from 'react-i18next'
@@ -40,6 +41,13 @@ const HeroSection = ({ title, avatar, research = [], researchLogos = {}, educati
   const textColor = useColorModeValue('gray.600', 'gray.400')
   const bg = useColorModeValue('gray.50', 'gray.900')
   const accentBg = useColorModeValue('blue.50', 'blue.900')
+  const researchHoverBg = useColorModeValue('gray.100', 'gray.700')
+  const [subtitleIndex, setSubtitleIndex] = useState(0)
+  useEffect(() => {
+    setSubtitleIndex(0)
+    const timer = setInterval(() => setSubtitleIndex(index => (index + 1) % Math.max(1, siteOwner.rotatingSubtitles.length)), 3000)
+    return () => clearInterval(timer)
+  }, [siteOwner.rotatingSubtitles])
 
   return (
     <Box
@@ -130,28 +138,20 @@ const HeroSection = ({ title, avatar, research = [], researchLogos = {}, educati
               <Text color="yellow.400" fontSize={["xs", "sm"]}>$</Text>
               <Text fontSize={["xs", "sm"]} color={useColorModeValue('gray.600', 'gray.400')}>{t('hero.sometimesI')}</Text>
               <Box h={["18px", "20px", "24px"]} overflow="hidden">
-                <MotionBox
-                  animate={{ y: [0, -18, -36, -54, -72, -90, 0] }}
-                  transition={{
-                    duration: 8,
-                    times: [0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9],
-                    repeat: Infinity,
-                    ease: "linear"
-                  }}
+                <MotionText
+                  key={subtitleIndex}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.2 }}
+                  h={["18px", "20px", "24px"]}
+                  lineHeight={["18px", "20px", "24px"]}
+                  color="cyan.400"
+                  fontWeight="bold"
+                  fontSize={["xs", "sm"]}
+                  fontFamily="mono"
                 >
-                  {siteOwner.rotatingSubtitles.map((text, index) => (
-                    <Text
-                      key={index}
-                      h={["18px", "20px", "24px"]}
-                      color="cyan.400"
-                      fontWeight="bold"
-                      fontSize={["xs", "sm"]}
-                      fontFamily="mono"
-                    >
-                      {text}
-                    </Text>
-                  ))}
-                </MotionBox>
+                  {siteOwner.rotatingSubtitles[subtitleIndex] || ''}
+                </MotionText>
               </Box>
             </HStack>
 
@@ -164,18 +164,18 @@ const HeroSection = ({ title, avatar, research = [], researchLogos = {}, educati
                 {research.length > 0 && (
                   <VStack align="start" spacing={2}>
                     <Heading size="xs" color={textColor} textTransform="uppercase" letterSpacing="wider" fontSize="2xs">
-                      Current Research
+                      {t('hero.currentResearch')}
                     </Heading>
                     {research.map((item, index) => {
                       const logo = researchLogos[item.lab]
                       return (
                         <Link key={index} href={item.link} isExternal _hover={{ textDecoration: 'none' }} w="full">
-                          <HStack spacing={2.5} p={2} borderRadius="md" transition="all 0.2s" _hover={{ bg: useColorModeValue('gray.100', 'gray.700') }}>
+                          <HStack spacing={2.5} p={2} borderRadius="md" transition="all 0.2s" _hover={{ bg: researchHoverBg }}>
                             {logo ? (
                               <Image src={logo} alt={item.lab} w="28px" h="28px" borderRadius="sm" objectFit="contain" flexShrink={0} />
                             ) : (
                               <Flex w="28px" h="28px" borderRadius="sm" bg={accentBg} align="center" justify="center" flexShrink={0}>
-                                <Text fontSize="sm">{item.emoji}</Text>
+                                <DynamicIcon name={index === 0 ? 'FaBrain' : index === 1 ? 'FaCompass' : 'FaChartLine'} boxSize={3.5} color="cyan.400" />
                               </Flex>
                             )}
                             <VStack align="start" spacing={0} flex={1}>
@@ -193,7 +193,7 @@ const HeroSection = ({ title, avatar, research = [], researchLogos = {}, educati
                 {education.length > 0 && (
                   <VStack align="start" spacing={2}>
                     <Heading size="xs" color={textColor} textTransform="uppercase" letterSpacing="wider" fontSize="2xs">
-                      Education
+                      {t('hero.education')}
                     </Heading>
                     {education.map((item, index) => {
                       const logo = educationLogos[item.institution]
@@ -208,7 +208,7 @@ const HeroSection = ({ title, avatar, research = [], researchLogos = {}, educati
                           )}
                           <VStack align="start" spacing={0} flex={1}>
                             <Text fontSize={["xs", "sm"]} fontWeight="medium" lineHeight="short" color={headingColor}>{item.course}</Text>
-                            <Text fontSize="2xs" color={textColor} lineHeight="short">{item.institution} · {item.year}</Text>
+                            <Text fontSize="2xs" color={textColor} lineHeight="short">{item.institution}{item.year && ` · ${item.year}`}</Text>
                           </VStack>
                         </HStack>
                       )
@@ -233,10 +233,10 @@ const HeroSection = ({ title, avatar, research = [], researchLogos = {}, educati
                   </HStack>
                 </Link>
                 <Text color={textColor} opacity={0.2}>/</Text>
-                <Link href={siteOwner.social.linkedin} isExternal _hover={{ textDecoration: 'none' }}>
+                <Link href={siteOwner.social.github} isExternal _hover={{ textDecoration: 'none' }}>
                   <HStack spacing={1.5} color={textColor} transition="all 0.15s" _hover={{ color: 'cyan.400' }}>
-                    <DynamicIcon name="FaLinkedin" boxSize={3.5} />
-                    <Text fontSize="xs" fontFamily="mono">linkedin</Text>
+                    <DynamicIcon name="FaGithub" boxSize={3.5} />
+                    <Text fontSize="xs" fontFamily="mono">github</Text>
                   </HStack>
                 </Link>
               </HStack>

@@ -127,7 +127,7 @@ export interface ProjectItem {
   highlights?: string[]
   featuredImage?: string
   isOpenSource?: boolean
-  role?: 'independent' | 'lead' | 'tech-lead' | 'maintainer'
+  role?: 'independent' | 'lead' | 'tech-lead' | 'maintainer' | 'contributor'
   story?: string
   badge?: string
   featured?: boolean
@@ -138,7 +138,7 @@ export interface Publication {
   title: string
   authors: string[]
   venue: string
-  venueType: 'conference' | 'workshop' | 'demo' | 'preprint'
+  venueType: 'journal' | 'conference' | 'workshop' | 'demo' | 'preprint'
   year: number
   month?: string
   status: 'accepted' | 'published' | 'preprint'
@@ -147,6 +147,7 @@ export interface Publication {
   links: {
     paper?: string
     arxiv?: string
+    scholar?: string
     projectPage?: string
     code?: string
     dataset?: string
@@ -160,6 +161,12 @@ export interface Publication {
   coFirstAuthors?: string[]
   emoji?: string
   featuredImage?: string
+}
+
+export interface ArticleItem extends ProjectItem {
+  slug: string
+  body: string
+  draft?: boolean
 }
 
 export interface Award {

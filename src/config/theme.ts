@@ -103,6 +103,11 @@ export const articleCategoryColors: Record<ProjectItem['category'], { fg: (dk: b
 
 /* ── Publication venue colors ─────────────────────────────────── */
 export const publicationVenueColors: Record<string, { bg: (dk: boolean) => string; fg: (dk: boolean) => string; label: string }> = {
+  journal: {
+    bg: dk => dk ? 'rgba(136, 192, 208, 0.15)' : 'rgba(42, 118, 156, 0.1)',
+    fg: dk => dk ? '#88c0d0' : '#2a769c',
+    label: 'JOURNAL',
+  },
   conference: {
     bg: dk => dk ? 'rgba(136, 192, 208, 0.15)' : 'rgba(42, 118, 156, 0.1)',
     fg: dk => dk ? '#88c0d0' : '#2a769c',

@@ -8,7 +8,7 @@ import {
 import { keyframes } from '@emotion/react'
 import { IconType } from 'react-icons'
 import {
-  FaFolderOpen, FaUser, FaCrown, FaCog, FaSync, FaChevronDown,
+  FaFolderOpen, FaUser, FaUsers, FaCrown, FaCog, FaSync, FaChevronDown,
   FaGithub, FaMedium, FaYoutube, FaExternalLinkAlt,
 } from 'react-icons/fa'
 import { SiZhihu, SiCsdn } from 'react-icons/si'
@@ -49,6 +49,7 @@ const roleConfig: Record<string, { textKey: string; icon: IconType; color: (d: b
   lead:        { textKey: 'projects.lead',        icon: FaCrown,  color: d => d ? '#d08770' : '#b35a2e' },
   'tech-lead': { textKey: 'projects.techLead',    icon: FaCog,    color: d => d ? '#88c0d0' : '#2a769c' },
   maintainer:  { textKey: 'projects.maintainer',  icon: FaSync,   color: d => d ? '#a3be8c' : '#36805a' },
+  contributor: { textKey: 'projects.contributor', icon: FaUsers, color: d => d ? '#88c0d0' : '#2a769c' },
 }
 
 /* ── Helpers ────────────────────────────────────────────────────── */
@@ -82,7 +83,7 @@ const FlowNode: React.FC<{
 }> = ({ item, ct, isDark, isLast: _isLast, termText, termSecondary, termMuted, termBorder, hlc, onImageClick }) => {
   const { t } = useTranslation()
   const [expanded, setExpanded] = useState(false)
-  const role = roleConfig[item.role || 'independent']
+  const role = roleConfig[item.role || 'contributor']
   const hasImg = !!item.featuredImage
   const res: { label: string; url: string }[] = []
   if (item.link) res.push({ label: t('projects.source'), url: item.link })
@@ -335,8 +336,8 @@ const Projects: React.FC = () => {
   }, [filtered])
 
   /* ── Stats ── */
-  const totalIndep = useMemo(() => projects.filter(p => !p.role || p.role === 'independent').length, [projects])
-  const filteredIndep = useMemo(() => filtered.filter(p => !p.role || p.role === 'independent').length, [filtered])
+  const totalCollaborative = useMemo(() => projects.filter(p => p.role === 'contributor').length, [projects])
+  const filteredCollaborative = useMemo(() => filtered.filter(p => p.role === 'contributor').length, [filtered])
 
   const onImgClick = useCallback((src: string, alt: string) => {
     setImgPreview({ src, alt }); openImg()
@@ -405,7 +406,7 @@ const Projects: React.FC = () => {
               <Text as="span" color={tc.border}> · </Text>
               <Text as="span" color={termHighlight}>{projects.length}</Text>
               <Text as="span"> {t('projects.projectsAcross')} </Text>
-              <Text as="span" color={termPrompt}>{totalIndep} {t('projects.independentlyBuilt')}</Text>
+              <Text as="span" color={termPrompt}>{totalCollaborative} {t('projects.collaborative')}</Text>
             </Text>
             <Text color={termInfo} flexShrink={0}>~/projects/{promptPath === '~' ? 'all' : activeTab}</Text>
           </Flex>
@@ -524,7 +525,7 @@ const Projects: React.FC = () => {
               <Text>{filtered.length}/{projects.length} {t('projects.shown')}</Text>
               <HStack spacing={1} color={termHighlight}>
                 <Icon as={FaUser} boxSize="9px" />
-                <Text fontWeight="bold">{filteredIndep} {t('projects.independent')}</Text>
+                <Text fontWeight="bold">{filteredCollaborative} {t('projects.collaborative')}</Text>
               </HStack>
             </HStack>
             <HStack spacing={1}>

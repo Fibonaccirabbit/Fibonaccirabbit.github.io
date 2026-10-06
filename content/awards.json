@@ -1,27 +1,9 @@
 [
-  {
-    "title": "Best Duo Award — Cookie & Lucas Play Session",
-    "org": "Living Room Championship",
-    "date": "Dec 2024",
-    "kind": "competition"
-  },
-  {
-    "title": "1st Place in Neighborhood Paw Shake Contest",
-    "org": "Dog Park Community",
-    "date": "Apr 2024",
-    "kind": "hackathon"
-  },
-  {
-    "title": "Fluffy Companion Fellowship",
-    "org": "National Treat Foundation",
-    "date": "Sep 2023",
-    "kind": "scholarship",
-    "link": "#"
-  },
-  {
-    "title": "Top Cuddler (top 5% of graduating class)",
-    "org": "Home Sweet Home Academy",
-    "date": "May 2022",
-    "kind": "honor"
-  }
+  { "title": "Second Prize, Songshanhu Cup", "org": "1st China Graduate Open-Source Operating System Innovation Competition", "date": "2024", "kind": "competition" },
+  { "title": "First Prize, Challenge Cup National Competition", "org": "Huawei Cloud Track, Fatigue Driving Recognition", "date": "2023", "kind": "competition" },
+  { "title": "Open Source Ambassador", "org": "OpenAtom Foundation", "date": "2023", "kind": "honor" },
+  { "title": "National First Prize, CUMCM", "org": "China Undergraduate Mathematical Contest in Modeling", "date": "2022", "kind": "competition" },
+  { "title": "First Prize, OpenHarmony Student Challenge", "org": "OpenHarmony Growth Program", "date": "2022", "kind": "competition" },
+  { "title": "First Prize, Huashu Cup Mathematical Modeling Competition", "date": "2022", "kind": "competition" },
+  { "title": "First Prize, Qiangguo Cup", "org": "OpenHarmony medical delivery robot project", "date": "2022", "kind": "competition" }
 ]

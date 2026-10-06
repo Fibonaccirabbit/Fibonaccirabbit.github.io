@@ -4,6 +4,7 @@ import { siteConfig } from './site.config'
 import { getTemplate, getResolvedSlots, SlotProvider } from './templates'
 import './styles/globals.css'
 import './i18n'
+import ArticleDetail from './components/ArticleDetail'
 
 function App() {
   const features = siteConfig.features as Record<string, boolean>
@@ -29,6 +30,7 @@ function App() {
               {features.articles && pages.articles && (
                 <Route path="/articles" element={<pages.articles />} />
               )}
+              {features.articles && <Route path="/articles/:slug" element={<ArticleDetail />} />}
               {features.experience && pages.experience && (
                 <Route path="/experience" element={<pages.experience />} />
               )}

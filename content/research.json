@@ -1,18 +1,7 @@
 {
   "currentResearch": [
-    {
-      "lab": "The Cozy Corner",
-      "emoji": "🛋️",
-      "advisor": "Dr. Warm Lap",
-      "focus": "warmth-seeking behavior and human-proximity optimization",
-      "link": "#"
-    },
-    {
-      "lab": "Lucas & Cookie Play Lab",
-      "emoji": "🐱",
-      "advisor": "Prof. Lucas",
-      "focus": "cross-species play dynamics and cooperative napping",
-      "link": "#"
-    }
+    { "lab": "Embodied AI & World Models", "emoji": "", "focus": "Multimodal prediction and decision-making", "link": "https://github.com/Fibonaccirabbit", "institution": "Shenzhen University" },
+    { "lab": "VLA / VLN", "emoji": "", "focus": "Multimodal action and navigation", "link": "https://github.com/Fibonaccirabbit", "institution": "Shenzhen University" },
+    { "lab": "Reinforcement Learning", "emoji": "", "focus": "Preference generalization and multi-objective policies", "link": "https://github.com/Fibonaccirabbit", "institution": "Shenzhen University" }
   ]
 }

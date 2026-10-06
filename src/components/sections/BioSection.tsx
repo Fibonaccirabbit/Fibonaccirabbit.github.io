@@ -17,7 +17,7 @@ const BioSection: React.FC = () => {
           <Heading size="md" fontWeight="semibold">{t('about.bio', 'About')}</Heading>
           <Box flex="1" h="1px" bg={useColorModeValue('gray.200', 'gray.700')} />
         </Flex>
-        <Text fontSize="sm" lineHeight="tall" color={textColor}>
+        <Text fontSize="sm" lineHeight="tall" color={textColor} whiteSpace="pre-line">
           {about.journey}
         </Text>
       </Container>
