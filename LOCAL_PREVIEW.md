@@ -23,9 +23,9 @@ Open http://127.0.0.1:5173/ and http://127.0.0.1:5173/articles.
 - Papers and projects: `content/publications/` and `content/projects/`, with Chinese versions under `content/zh/`.
 - Blog: `content/articles/` and `content/zh/articles/`.
 
-Blog posts need `slug`, `title`, `summary`, `date`, `category`, and `tags` in their YAML frontmatter. `draft: true` is visible in development but excluded from production JavaScript. The current Day 1 post remains a draft in both languages. Set both copies to `draft: false` when ready to publish.
+Blog posts need `slug`, `title`, `summary`, `date`, `category`, and `tags` in their YAML frontmatter. `draft: true` is visible in development but excluded from production JavaScript. Day 1 is published in both languages with `draft: false`, using the full workstation recording supplied by the author.
 
-Videos and posters live under `public/media/`; these files are copied to production regardless of the draft flag. A draft flag is not access control for media assets. Unpublished Day 1 Markdown files and their media are kept untracked and out of the public Git commit. To publish them later, review both language copies, remove the draft flags, and explicitly commit the article and media together.
+Videos and posters live under `public/media/`; these files are copied to production regardless of the draft flag. A draft flag is not access control for media assets. The published Day 1 assets are `agent-os-day1-workstation.mp4` and `agent-os-day1-workstation-poster.jpg`. Earlier cropped assets remain local and untracked; do not commit them accidentally. For a new post, review both language copies and explicitly commit its article and media together.
 
 ## Publish
 

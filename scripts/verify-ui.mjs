@@ -5,8 +5,10 @@ import { chromium } from 'playwright'
 
 const origin = (process.env.SITE_URL || 'http://127.0.0.1:5173').replace(/\/$/, '')
 const includeDrafts = process.env.VERIFY_DRAFTS !== 'false'
+const day1 = matter(readFileSync('content/articles/agent-os-day1.md', 'utf8')).data
+const verifyDay1 = includeDrafts || day1.draft !== true
 const paths = ['/', '/publications', '/projects', '/experience', '/articles']
-if (includeDrafts) paths.push('/articles/agent-os-day1')
+if (verifyDay1) paths.push('/articles/agent-os-day1')
 const browser = await chromium.launch({ channel: 'chrome', headless: true })
 const context = await browser.newContext({ locale: 'zh-CN' })
 const page = await context.newPage()
@@ -120,7 +122,7 @@ try {
   await page.getByText('grep: no matches found').waitFor()
   await search.fill('')
 
-  if (includeDrafts) {
+  if (verifyDay1) {
     await page.getByRole('button', { name: 'Show summary' }).click()
     await page.getByRole('link', { name: 'Read post', exact: true }).click()
     await page.waitForURL('**/articles/agent-os-day1')
@@ -132,6 +134,9 @@ try {
     await page.reload()
     await page.locator('video').waitFor()
     await page.waitForFunction(() => document.querySelector('video').readyState >= 2)
+    const videoInfo = await page.locator('video').evaluate(video => ({ src: video.currentSrc, width: video.videoWidth, height: video.videoHeight }))
+    assert.ok(videoInfo.src.endsWith('/media/agent-os-day1-workstation.mp4'), 'Day 1 must use the newly supplied full recording')
+    assert.deepEqual([videoInfo.width, videoInfo.height], [3024, 1496], 'The recording must not be cropped')
     await page.locator('video').evaluate(video => video.play())
     await page.waitForFunction(() => document.querySelector('video').currentTime > 0.5)
     await page.locator('video').evaluate(video => video.pause())
@@ -139,7 +144,7 @@ try {
   await page.goto(`${origin}/articles/no-such-post`)
   await page.getByText('Post not found', { exact: true }).waitFor()
   assert.deepEqual(errors, [], 'No browser runtime errors are allowed')
-  console.log(`Passed: English default, legacy-cache migration, saved language choice, ${paths.length} routes, 2 languages, 5 widths, 7 paper resource links, publication filters, keyboard expansion, controls, themes, navigation, search${includeDrafts ? ', article reading, and video playback' : ''}.`)
+  console.log(`Passed: English default, legacy-cache migration, saved language choice, ${paths.length} routes, 2 languages, 5 widths, 7 paper resource links, publication filters, keyboard expansion, controls, themes, navigation, search${verifyDay1 ? ', article reading, and full-recording playback' : ''}.`)
 } finally {
   await browser.close()
 }
