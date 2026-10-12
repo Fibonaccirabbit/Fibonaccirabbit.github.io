@@ -19,19 +19,14 @@ import {
   StatNumber,
   StatHelpText,
   useBreakpointValue,
-  Image,
   useDisclosure,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalBody,
-  ModalCloseButton
 } from '@chakra-ui/react'
 import { keyframes } from '@emotion/react'
 import { comparePublicationDates, getPublicationStats } from '../data'
 import { useTranslation } from 'react-i18next'
 import { AddIcon, MinusIcon } from '@chakra-ui/icons'
 import PublicationLinks from './PublicationLinks'
+import { PublicationFigure, PublicationFigurePreview } from './PublicationFigure'
 import { useLocalizedData } from '@/hooks/useLocalizedData'
 import { FaChartBar, FaVideo, FaProjectDiagram, FaFileAlt, FaAtom, FaStar, FaRobot, FaGlobe, FaHandRock, FaCloudSun, FaFutbol } from 'react-icons/fa'
 import { IconType } from 'react-icons'
@@ -420,9 +415,8 @@ const PublicationsTerminal: React.FC = () => {
               fontWeight="bold"
               color={termInfo}
             >
-              {!isMobile && filteredPublications.some(pub => pub.featuredImage) && <Text w="320px" mr={6}>PREVIEW</Text>}
+              {filteredPublications.some(pub => pub.featuredImage) && <Text display={{ base: 'none', lg: 'block' }} w="300px" mr={6}>PREVIEW</Text>}
               <Text flex="1">PUBLICATION</Text>
-              {!isMobile && <Text w="180px">RESOURCES</Text>}
               <Text w="40px" textAlign="center">MORE</Text>
             </Flex>
             
@@ -440,52 +434,14 @@ const PublicationsTerminal: React.FC = () => {
                 <Flex
                   px={4}
                   py={6}
-                  align="center"
-                  cursor="pointer"
-                  onClick={() => toggleExpanded(pub.id)}
+                  direction={{ base: "column", lg: "row" }}
+                  gap={{ base: 4, lg: 6 }}
+                  align="stretch"
                   fontSize="sm"
                   position="relative"
-                  minH={pub.featuredImage ? '200px' : '140px'}
+                  minH="140px"
                 >
-                  {/* Featured Image Thumbnail */}
-                  {pub.featuredImage && !isMobile && (
-                    <Box 
-                      w="320px" 
-                      h="180px"
-                      mr={6}
-                      flexShrink={0}
-                      display="flex"
-                      alignItems="center"
-                      justifyContent="center"
-                      bg={isDark ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.8)'}
-                      borderRadius="lg"
-                      border={`1px solid ${termBorder}`}
-                      overflow="hidden"
-                      cursor="zoom-in"
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => showImagePreview(pub.featuredImage, `${pub.title} thumbnail`)}
-                      onKeyDown={(event) => {
-                        if (event.key === 'Enter' || event.key === ' ') {
-                          event.preventDefault()
-                          showImagePreview(pub.featuredImage, `${pub.title} thumbnail`)
-                        }
-                      }}
-                    >
-                      <Image
-                        src={pub.featuredImage}
-                        alt={`${pub.title} thumbnail`}
-                        w="full"
-                        h="full"
-                        objectFit="contain"
-                        p={3}
-                        transition="transform 0.2s"
-                        _hover={{
-                          transform: 'scale(1.05)'
-                        }}
-                      />
-                    </Box>
-                  )}
+                  <PublicationFigure publication={pub} onOpen={() => showImagePreview(pub.featuredImageFull || pub.featuredImage, pub.featuredImageAlt || pub.title)} />
                   
                   {/* Title & Authors */}
                   <Box flex="1" minW={0} pr={2}>
@@ -555,7 +511,7 @@ const PublicationsTerminal: React.FC = () => {
                     <Text fontSize="xs" color={termSecondary}>
                       {pub.authors.map((author, i) => {
                         const cleanAuthor = author.replace('*', '')
-                        const hasAsterisk = author.includes('*')
+                        const hasAsterisk = author.includes('*') || (pub.coFirstAuthors?.includes(cleanAuthor) ?? false)
                         const isOwner = (siteOwner.name.authorVariants as readonly string[]).includes(cleanAuthor)
                         
                         return (
@@ -584,31 +540,32 @@ const PublicationsTerminal: React.FC = () => {
                         </Text>
                       )}
                     </Text>
-                    {isMobile && <Box mt={3}><PublicationLinks links={pub.links} compact /></Box>}
+                    {(pub.summary || pub.abstract) && (
+                      <Text data-publication-summary mt={3} fontSize="sm" color={termText} lineHeight="tall">
+                        {pub.summary || pub.abstract}
+                      </Text>
+                    )}
+                    <Flex mt={3} gap={3} justify="space-between" align="start">
+                      <Box minW={0}>
+                        <PublicationLinks links={pub.links} compact />
+                        {Object.keys(pub.links).length === 0 && <Text fontSize="xs" color={termSecondary}>{t('about.fullTextNotLinked')}</Text>}
+                      </Box>
+                      <IconButton
+                        aria-label={`${expandedItems[pub.id] ? 'Hide' : 'Show'} details: ${pub.title}`}
+                        aria-expanded={!!expandedItems[pub.id]}
+                        icon={expandedItems[pub.id] ? <MinusIcon /> : <AddIcon />}
+                        variant="ghost" size="sm" w="40px" flexShrink={0}
+                        color={expandedItems[pub.id] ? termInfo : termCommand}
+                        onClick={() => toggleExpanded(pub.id)}
+                      />
+                    </Flex>
                   </Box>
-                  
-                  {/* Resources */}
-                  {!isMobile && (
-                    <Box w="180px" flexShrink={0}><PublicationLinks links={pub.links} compact /></Box>
-                  )}
-                  
-                  {/* Expand Button */}
-                  <IconButton
-                    aria-label={`${expandedItems[pub.id] ? 'Hide' : 'Show'} details: ${pub.title}`}
-                    aria-expanded={!!expandedItems[pub.id]}
-                    icon={expandedItems[pub.id] ? <MinusIcon /> : <AddIcon />}
-                    variant="ghost"
-                    size="sm"
-                    w="40px"
-                    flexShrink={0}
-                    color={expandedItems[pub.id] ? termInfo : termCommand}
-                    onClick={event => { event.stopPropagation(); toggleExpanded(pub.id) }}
-                  />
                 </Flex>
                 
                 {/* Expanded Details */}
                 <Collapse in={expandedItems[pub.id]}>
                   <Box
+                    data-publication-details
                     px={8}
                     py={4}
                     bg={isDark ? 'rgba(76, 86, 106, 0.15)' : 'rgba(203, 213, 225, 0.15)'}
@@ -654,46 +611,6 @@ const PublicationsTerminal: React.FC = () => {
                         </Box>
                       </Box>
                       
-                      {/* Right side - Featured Image */}
-                      {pub.featuredImage && (
-                        <Box 
-                          w={isMobile ? "full" : "450px"} 
-                          h={isMobile ? "auto" : "300px"}
-                          flexShrink={0}
-                          order={isMobile ? -1 : 1}
-                          display="flex"
-                          alignItems="center"
-                          justifyContent="center"
-                          bg={isDark ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.9)'}
-                          borderRadius="lg"
-                          border={`1px solid ${termBorder}`}
-                          overflow="hidden"
-                          cursor="zoom-in"
-                          role="button"
-                          tabIndex={0}
-                          onClick={() => showImagePreview(pub.featuredImage, `${pub.title} featured image`)}
-                          onKeyDown={(event) => {
-                            if (event.key === 'Enter' || event.key === ' ') {
-                              event.preventDefault()
-                              showImagePreview(pub.featuredImage, `${pub.title} featured image`)
-                            }
-                          }}
-                        >
-                          <Image
-                            src={pub.featuredImage}
-                            alt={`${pub.title} featured image`}
-                            w="full"
-                            h="full"
-                            objectFit="contain"
-                            p={4}
-                            transition="transform 0.3s"
-                            _hover={{
-                              transform: 'scale(1.08)',
-                              cursor: 'zoom-in'
-                            }}
-                          />
-                        </Box>
-                      )}
                     </Flex>
                   </Box>
                 </Collapse>
@@ -750,26 +667,8 @@ const PublicationsTerminal: React.FC = () => {
           </Flex>
         </Box>
 
-        <Modal isOpen={isImageOpen} onClose={closeImageModal} size="4xl" isCentered>
-          <ModalOverlay />
-          <ModalContent bg="transparent" boxShadow="none">
-            <ModalCloseButton color={isDark ? 'gray.200' : 'gray.700'} />
-            <ModalBody p={0} display="flex" alignItems="center" justifyContent="center">
-              {imagePreview && (
-                <Image
-                  src={imagePreview.src}
-                  alt={imagePreview.alt}
-                  maxH="80vh"
-                  maxW="90vw"
-                  objectFit="contain"
-                  borderRadius="lg"
-                  bg={isDark ? 'rgba(0,0,0,0.85)' : 'white'}
-                  p={4}
-                />
-              )}
-            </ModalBody>
-          </ModalContent>
-        </Modal>
+        <PublicationFigurePreview isOpen={isImageOpen} onClose={closeImageModal}
+          src={imagePreview?.src} alt={imagePreview?.alt || ''} />
         
         {/* Summary Stats Bar */}
         <Flex

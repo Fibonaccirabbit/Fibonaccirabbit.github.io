@@ -142,6 +142,7 @@ export interface Publication {
   year: number
   month?: string
   status: 'accepted' | 'published' | 'preprint'
+  summary?: string
   abstract?: string
   keywords?: string[]
   links: {
@@ -161,6 +162,9 @@ export interface Publication {
   coFirstAuthors?: string[]
   emoji?: string
   featuredImage?: string
+  featuredImageFull?: string
+  featuredImageAlt?: string
+  featuredImageCaption?: string
 }
 
 export interface ArticleItem extends ProjectItem {

@@ -13,7 +13,8 @@
     "validate": "node scripts/validate.mjs",
     "setup": "node scripts/setup.mjs",
     "test:ui": "node scripts/verify-ui.mjs",
-    "test:profile": "node scripts/verify-profile.mjs"
+    "test:profile": "node scripts/verify-profile.mjs",
+    "test:publications": "node scripts/verify-publication-previews.mjs"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.1.1",

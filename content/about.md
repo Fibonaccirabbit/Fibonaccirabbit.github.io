@@ -20,6 +20,6 @@ version:
   history: []
 ---
 
-I am a master's student in Computer Science at Shenzhen University. My research focuses on embodied AI, world models, VLA/VLN, multimodal decision-making, and multi-objective reinforcement learning. My recent projects include SLAW-Nav, FP2, and MAPF-World.
+I am a master's student in Computer Science at Shenzhen University. My research focuses on embodied AI, world models, VLA/VLN, multimodal decision-making, and multi-objective reinforcement learning. My recent projects include SLAW-Nav and MAPF-World.
 
 Earlier, I worked on sleep staging, RGB-to-hyperspectral reconstruction, and OpenHarmony applications. This work included medical delivery robots, on-device fatigue detection, and an XR smart-cabin interface.

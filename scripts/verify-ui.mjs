@@ -45,7 +45,9 @@ try {
         await page.waitForSelector('nav')
         await page.waitForTimeout(250)
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, `${language} ${path} overflows at ${width}px`)
-        const missingImages = await page.locator('img').evaluateAll(images => images.filter(image => !image.complete || image.naturalWidth === 0).map(image => image.src))
+        await page.locator('img').evaluateAll(images => images.forEach(image => { image.loading = 'eager' }))
+        await page.waitForFunction(() => [...document.images].every(image => image.complete))
+        const missingImages = await page.locator('img').evaluateAll(images => images.filter(image => image.naturalWidth === 0).map(image => image.src))
         assert.deepEqual(missingImages, [], `${path} has missing images`)
         const clippedControls = await page.locator('input,select').evaluateAll(controls => controls.filter(control => {
           const rect = control.getBoundingClientRect()
@@ -72,7 +74,7 @@ try {
           assert.ok(await page.locator('a[href*="scholar.google.com/citations?user=4PaJ4SkAAAAJ"]').count() > 0)
         }
         if (path === '/publications') {
-          assert.equal(await page.locator('[data-publication-id]').count(), 7)
+          assert.equal(await page.locator('[data-publication-id]').count(), papers.length)
           assert.equal(await page.locator('[data-publication-id]').first().getAttribute('data-publication-id'), 'mapf-world-ral-2026')
           for (const paper of papers) {
             const row = page.locator(`[data-publication-id="${paper.id}"]`)
@@ -144,7 +146,7 @@ try {
   await page.goto(`${origin}/articles/no-such-post`)
   await page.getByText('Post not found', { exact: true }).waitFor()
   assert.deepEqual(errors, [], 'No browser runtime errors are allowed')
-  console.log(`Passed: English default, legacy-cache migration, saved language choice, ${paths.length} routes, 2 languages, 5 widths, 7 paper resource links, publication filters, keyboard expansion, controls, themes, navigation, search${verifyDay1 ? ', article reading, and full-recording playback' : ''}.`)
+  console.log(`Passed: English default, legacy-cache migration, saved language choice, ${paths.length} routes, 2 languages, 5 widths, ${papers.length} paper resource links, publication filters, keyboard expansion, controls, themes, navigation, search${verifyDay1 ? ', article reading, and full-recording playback' : ''}.`)
 } finally {
   await browser.close()
 }

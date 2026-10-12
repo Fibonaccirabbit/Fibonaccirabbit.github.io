@@ -70,7 +70,7 @@ function mdToProject(raw: Record<string, unknown>): ProjectItem {
 function mdToPublication(raw: Record<string, unknown>): Publication {
   const { _body, ...rest } = raw
   const bodyStr = (_body as string) || ''
-  const abstract = bodyStr.replace(/<[^>]+>/g, '').trim()
+  const abstract = new DOMParser().parseFromString(bodyStr, 'text/html').body.textContent?.trim() || ''
   return { abstract, ...rest } as unknown as Publication
 }
 

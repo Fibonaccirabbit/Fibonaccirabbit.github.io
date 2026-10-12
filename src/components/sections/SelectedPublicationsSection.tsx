@@ -1,5 +1,5 @@
 import { Box, Container, VStack, HStack, Text, Heading, Flex, Link,
-  Image, Collapse, useDisclosure, Modal, ModalOverlay, ModalContent, ModalBody, ModalCloseButton,
+  Collapse, useDisclosure,
   useColorModeValue } from '@chakra-ui/react'
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -9,6 +9,7 @@ import { comparePublicationDates } from '@/data'
 import type { Publication } from '@/types'
 import DynamicIcon from '../DynamicIcon'
 import PublicationLinks from '../PublicationLinks'
+import { PublicationFigure, PublicationFigurePreview } from '../PublicationFigure'
 
 const PublicationCard = ({ pub }: { pub: Publication }) => {
   const { t } = useTranslation()
@@ -17,23 +18,17 @@ const PublicationCard = ({ pub }: { pub: Publication }) => {
   const { isOpen: isImageOpen, onOpen: onImageOpen, onClose: onImageClose } = useDisclosure()
   const borderColor = useColorModeValue('gray.200', 'gray.700')
   const authorHighlight = useColorModeValue('gray.700', 'gray.200')
+  const summaryColor = useColorModeValue('gray.600', 'gray.300')
+  const mutedColor = useColorModeValue('gray.500', 'gray.400')
 
   return (
-    <Box p={[4, 5, 6]} bg={useColorModeValue('white', 'gray.800')} borderRadius="md" border="1px solid" borderColor={borderColor} transition="all 0.2s" _hover={{ borderColor: useColorModeValue('cyan.300', 'cyan.600') }}>
-      <Flex direction={["column", "column", "row"]} gap={[4, 4, 6]} align="stretch">
-        {pub.featuredImage && (
-          <Box flexShrink={0} w={["full", "full", "300px"]} minH={["200px", "220px", "auto"]}
-            role="button" tabIndex={0} onClick={onImageOpen}
-            onKeyDown={(e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onImageOpen() } }}
-            cursor="zoom-in" overflow="hidden" borderRadius="sm"
-          >
-            <Image src={pub.featuredImage} alt={pub.title} w="full" h="full" objectFit="contain" bg={useColorModeValue('gray.50', 'gray.900')} p={1} transition="transform 0.3s" _hover={{ transform: 'scale(1.03)' }} />
-          </Box>
-        )}
-        <VStack align="start" spacing={2.5} flex={1} justify="center">
+    <Box data-publication-id={pub.id} p={[4, 5, 6]} bg={useColorModeValue('white', 'gray.800')} borderRadius="md" border="1px solid" borderColor={borderColor} transition="all 0.2s" _hover={{ borderColor: useColorModeValue('cyan.300', 'cyan.600') }}>
+      <Flex direction={{ base: "column", lg: "row" }} gap={[4, 4, 6]} align="stretch">
+        <PublicationFigure publication={pub} onOpen={onImageOpen} />
+        <VStack align="start" spacing={2.5} flex={1} minW={0} justify="center">
           <HStack spacing={2} flexWrap="wrap" align="center">
             <Box h="2px" w="16px" bg="cyan.400" borderRadius="full" />
-            <Text fontSize="xs" fontFamily="mono" color="cyan.400" fontWeight="semibold" letterSpacing="wide" textTransform="uppercase">
+            <Text fontSize="xs" fontFamily="mono" color="cyan.400" fontWeight="semibold" letterSpacing={0} textTransform="uppercase">
               {pub.venue && String(pub.year) && pub.venue.includes(String(pub.year)) ? pub.venue : `${pub.venue} ${pub.year}`}
             </Text>
             {pub.venueType && <Text fontSize="2xs" color={useColorModeValue('gray.400', 'gray.500')} fontFamily="mono">/ {pub.venueType}</Text>}
@@ -65,9 +60,12 @@ const PublicationCard = ({ pub }: { pub: Publication }) => {
               </HStack>
             )}
           </VStack>
+          {pub.isCoFirst && !pub.specialBadges?.length && <Text fontSize="2xs" color={mutedColor}>{t('about.equalContribution')}</Text>}
+          {(pub.summary || pub.abstract) && <Text data-publication-summary fontSize="sm" lineHeight="tall" color={summaryColor}>{pub.summary || pub.abstract}</Text>}
           <Box w="full" h="1px" bg={useColorModeValue('gray.100', 'gray.700')} />
           <Flex gap={1.5} flexWrap="wrap">
             <PublicationLinks links={pub.links} />
+            {Object.keys(pub.links).length === 0 && <Text fontSize="xs" color={mutedColor}>{t('about.fullTextNotLinked')}</Text>}
             {pub.abstract && (
               <HStack as="button" spacing={1.5} px={2.5} py={1} borderRadius="sm" border="1px solid"
                 borderColor={isAbstractOpen ? useColorModeValue('cyan.300', 'cyan.600') : borderColor}
@@ -84,7 +82,7 @@ const PublicationCard = ({ pub }: { pub: Publication }) => {
       </Flex>
       {pub.abstract && (
         <Collapse in={isAbstractOpen} animateOpacity>
-          <Box mt={4} p={4} bg={useColorModeValue('gray.50', 'gray.900')} borderRadius="md" borderLeft="2px solid" borderLeftColor="cyan.400">
+          <Box mt={4} pt={4} borderTop="1px solid" borderColor={borderColor}>
             <Text fontSize={["xs", "sm"]} lineHeight="tall" color={useColorModeValue('gray.600', 'gray.400')}>{pub.abstract}</Text>
             {pub.keywords && (
               <HStack mt={3} spacing={1.5} flexWrap="wrap">
@@ -96,15 +94,8 @@ const PublicationCard = ({ pub }: { pub: Publication }) => {
           </Box>
         </Collapse>
       )}
-      <Modal isOpen={isImageOpen} onClose={onImageClose} size="4xl" isCentered>
-        <ModalOverlay />
-        <ModalContent bg="transparent" boxShadow="none">
-          <ModalCloseButton color={useColorModeValue('gray.700', 'gray.200')} />
-          <ModalBody p={0} display="flex" alignItems="center" justifyContent="center">
-            <Image src={pub.featuredImage} alt={`${pub.title} large preview`} maxH="80vh" maxW="90vw" objectFit="contain" borderRadius="lg" bg={useColorModeValue('white', 'gray.900')} p={4} />
-          </ModalBody>
-        </ModalContent>
-      </Modal>
+      <PublicationFigurePreview isOpen={isImageOpen} onClose={onImageClose}
+        src={pub.featuredImageFull || pub.featuredImage} alt={pub.featuredImageAlt || pub.title} />
     </Box>
   )
 }
