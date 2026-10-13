@@ -13,16 +13,17 @@ outside the website source and public assets, so they are not bundled or served.
 
 | Work | Local source PDF | Page / Figure | Full-resolution PNG |
 | --- | --- | --- | --- |
-| MAPF-World | MAPF-World_Action_World_Model_for_Multi-Agent_Path_Finding.pdf | 3 / 2 | 3956 x 1554 |
+| MAPF-World | MAPF-World_Action_World_Model_for_Multi-Agent_Path_Finding.pdf | 3 / 2 | 4017 x 1609 |
 | SLAW-Nav | SLAW.pdf | 5 / 1 | 2811 x 1152 |
 | cVAN | cVAN_A_Novel_Sleep_Staging_Method_via_Cross-View_Alignment_Network.pdf | 3 / 1 | 4036 x 1376 |
 | MCGA | MCGA.pdf | 4 / 1 | 1394 x 626 |
 | H-LIGO | H-LIGO.pdf | 5 / 1 | 1331 x 558 |
 | EnvPilot | EnvPilot.pdf | 4 / 1 | 3960 x 820 |
 
-Embedded raster figures are extracted at their native resolution without
-upscaling. EnvPilot's vector diagram is rendered from its figure region at
-720 dpi. MCGA and H-LIGO retain the resolution actually present in their PDFs;
+MAPF-World's complete figure region is rendered at 600 dpi, preserving the
+vector labels layered over its raster artwork. EnvPilot's vector diagram is
+rendered at 720 dpi. Other embedded raster figures are extracted at their native
+resolution without upscaling. MCGA and H-LIGO retain the resolution actually present in their PDFs;
 larger original author artwork would be needed for more detail.
 
 Lossless WebP previews are capped at 2400 pixels wide. Figure dialogs load the

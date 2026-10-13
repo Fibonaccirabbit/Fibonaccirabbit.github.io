@@ -51,8 +51,24 @@ try {
     await mapf.getByRole('button', { name: /^View figure:/ }).click()
     const dialog = page.getByRole('dialog')
     await dialog.waitFor()
-    const full = await dialog.locator('img').evaluate(async image => { await image.decode(); return { width: image.naturalWidth, src: image.getAttribute('src') } })
-    assert.equal(full.width, 3956)
+    const full = await dialog.locator('img').evaluate(async image => {
+      await image.decode()
+      const canvas = document.createElement('canvas')
+      canvas.width = 80
+      canvas.height = 320
+      const ctx = canvas.getContext('2d')
+      // The backbone label is a separate PDF layer; extracting the base image loses it.
+      ctx.drawImage(image, image.naturalWidth * 0.686, image.naturalHeight * 0.205,
+        image.naturalWidth * 0.04, image.naturalHeight * 0.58, 0, 0, canvas.width, canvas.height)
+      const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data
+      let ink = 0
+      for (let index = 0; index < pixels.length; index += 4) {
+        if (Math.max(pixels[index], pixels[index + 1], pixels[index + 2]) < 100) ink++
+      }
+      return { width: image.naturalWidth, src: image.getAttribute('src'), labelInk: ink / (canvas.width * canvas.height) }
+    })
+    assert.equal(full.width, readFileSync('public/media/publications/mapf-world.png').readUInt32BE(16))
+    assert.ok(full.labelInk > 0.03, 'MAPF-World must include the overlaid backbone label, not just the empty diagram background')
     assert.equal(full.src, '/media/publications/mapf-world.png')
     assert.equal(await dialog.getByRole('link', { name: 'Open full-resolution figure' }).getAttribute('href'), full.src)
     await dialog.getByRole('button', { name: 'Close figure' }).click()
