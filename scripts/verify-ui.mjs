@@ -125,6 +125,8 @@ try {
   await search.fill('')
 
   if (verifyDay1) {
+    // Several posts are listed; narrow the list to Day 1 before opening it.
+    await search.fill(day1.title)
     await page.getByRole('button', { name: 'Show summary' }).click()
     await page.getByRole('link', { name: 'Read post', exact: true }).click()
     await page.waitForURL('**/articles/agent-os-day1')
