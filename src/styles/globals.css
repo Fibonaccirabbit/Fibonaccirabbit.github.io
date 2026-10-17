@@ -104,7 +104,10 @@ code {
 .article-prose em { font-size:13px; opacity:.8; font-style:normal; }
 .article-prose a { color:var(--accent-color); text-decoration:underline; text-underline-offset:3px; }
 .article-prose pre,.article-prose table { max-width:100%; overflow-x:auto; }
-.article-prose table { display:block; }
+.article-prose table { display:block; margin:24px 0; border-collapse:collapse; font-size:13px; line-height:1.7; }
+.article-prose th,.article-prose td { padding:10px 12px; border-bottom:1px solid var(--border-color); vertical-align:top; }
+.article-prose th { text-align:left; font-weight:600; }
+.article-prose th[align="right"],.article-prose td[align="right"] { text-align:right; font-variant-numeric:tabular-nums; }
 .article-prose blockquote { border-left:2px solid var(--accent-color); padding-left:18px; margin:24px 0; }
 .article-prose ul,.article-prose ol { padding-left:24px; margin-bottom:22px; }
 .article-mobile-toc summary { list-style:none; }
