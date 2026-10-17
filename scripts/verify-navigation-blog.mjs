@@ -1,98 +1,166 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { createHash } from 'node:crypto'
+import { readFileSync, readdirSync } from 'node:fs'
 import matter from 'gray-matter'
 import { chromium } from 'playwright'
 
 const origin = (process.env.SITE_URL || 'http://127.0.0.1:5173').replace(/\/$/, '')
 const slug = 'wnm3d-navigation-failures'
-const directory = `/media/${slug}/`
-const media = [
-  ['blocked-prediction-vs-execution.mp4', 1280, 690, 5],
-  ['early-stop-forecast.mp4', 960, 382, 6.6],
-  ['recovery-control-comparison.mp4', 640, 440, 7.2],
-]
-const figures = ['recovery-counts-and-delay.png', 'goal-and-motion-timeline.png']
+const directory = `/media/${slug}/full/`
+const manifest = JSON.parse(readFileSync('scripts/fixtures/wnm3d-detail-coverage.json', 'utf8'))
+const hash = value => createHash('sha256').update(value).digest('hex')
+const normalize = text => text.replace(/\s+/g, '')
 const browser = await chromium.launch({ channel: 'chrome', headless: true })
 const errors = []
+const leaf = 'p,td,th,blockquote,h1,h2,h3,h4,h5,summary,figcaption,li'
+
+async function openDetails(locator) {
+  await locator.evaluate(element => {
+    for (let parent = element.parentElement; parent; parent = parent.parentElement) {
+      if (parent.tagName === 'DETAILS') parent.open = true
+    }
+  })
+}
+
+async function playVideo(video, asset) {
+  await openDetails(video)
+  await video.scrollIntoViewIfNeeded()
+  const info = await video.evaluate(async video => {
+    video.muted = true
+    video.load()
+    await Promise.race([
+      video.play(),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Video playback timed out')), 15000)),
+    ])
+    return { width: video.videoWidth, height: video.videoHeight, duration: video.duration }
+  })
+  assert.deepEqual([info.width, info.height], [asset.width, asset.height], asset.url)
+  assert.ok(Math.abs(info.duration - asset.duration) < 0.15, asset.url)
+  await video.page().waitForFunction(url => {
+    const video = [...document.querySelectorAll('.wnm3d-report video')].find(video => video.currentSrc.split('#')[0].endsWith(url))
+    return video && video.currentTime > 0.15
+  }, asset.url)
+  const visible = await video.evaluate(video => {
+    video.pause()
+    const canvas = document.createElement('canvas')
+    canvas.width = 160
+    canvas.height = 100
+    const ctx = canvas.getContext('2d')
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
+    const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data
+    let ink = 0
+    for (let i = 0; i < pixels.length; i += 4) if (Math.max(pixels[i], pixels[i + 1], pixels[i + 2]) > 40) ink++
+    return ink / (canvas.width * canvas.height)
+  })
+  assert.ok(visible > 0.05, `${asset.url}: a decoded video frame must not be blank`)
+  const bounds = await video.boundingBox()
+  assert.ok(Math.abs(bounds.width / bounds.height - asset.width / asset.height) < 0.03, asset.url)
+}
 
 try {
-  for (const language of ['en', 'zh']) {
+  for (const asset of manifest.assets) {
+    const bytes = readFileSync(`public${asset.url}`)
+    assert.equal(bytes.length, asset.bytes, asset.url)
+    assert.equal(hash(bytes), asset.sha256, `${asset.url}: retain original media bytes`)
+  }
+  const files = readdirSync(`public${directory}`, { recursive: true }).filter(name => /\.[^/]+$/.test(name))
+  assert.ok(files.every(name => /\.(png|jpe?g|svg|mp4|gif|pdf)$/i.test(name)), 'Raw logs and audit files must stay local')
+  assert.equal(manifest.sourceBlocks.length, 855, 'Coverage must include the source and the full paired supplement')
+  assert.equal(manifest.videos.length, 48)
+  assert.equal(new Set(manifest.videos).size, 46)
+  assert.equal(manifest.images.length, 52)
+
+  for (const language of ['zh', 'en']) {
     const root = language === 'zh' ? 'content/zh' : 'content'
     const { data, content } = matter(readFileSync(`${root}/articles/${slug}.md`, 'utf8'))
     assert.equal(data.slug, slug)
     assert.equal(data.draft, false)
-    assert.equal(/\/Users\/|\/home\/|past_obs_tokens|<script|seed\s*[:=]?\s*\d+/i.test(content), false)
+    assert.equal(/\/Users\/|\/home\/|file:\/\/|<script|\son\w+\s*=/i.test(content), false)
+    if (language === 'en') assert.ok(content.includes('The full original report follows in Chinese.'))
+
     for (const width of [1440, 768, 390, 320]) {
       const context = await browser.newContext({ viewport: { width, height: 1000 } })
       await context.addInitScript(language => localStorage.setItem('termhubLanguage', language), language)
       const page = await context.newPage()
+      const videoRequests = []
       page.on('pageerror', error => errors.push(error.message))
+      page.on('request', request => { if (/\.mp4(?:[?#]|$)/.test(request.url())) videoRequests.push(request.url()) })
       const response = await page.goto(`${origin}/articles/${slug}/`, { waitUntil: 'networkidle' })
       assert.equal(response.status(), 200)
       assert.equal(await page.locator('h1').innerText(), data.title)
-      const prose = page.locator('.article-prose')
-      assert.equal(await prose.locator('h2').count(), 7)
-      const outcomes = await prose.locator('tbody tr').evaluateAll(rows => rows.map(row =>
-        [...row.querySelectorAll('td')].slice(1).map(cell => cell.textContent.trim())))
-      assert.deepEqual(outcomes, [['971', '37.4%'], ['952', '36.6%'], ['672', '25.9%'], ['3', '0.1%'], ['2,598', '100.0%']])
-      assert.equal(await prose.locator('img').count(), 2)
-      for (const [index, name] of figures.entries()) {
-        const figure = prose.locator('img').nth(index)
-        await figure.scrollIntoViewIfNeeded()
-        const dimensions = await figure.evaluate(async image => {
-          await image.decode()
-          return { width: image.naturalWidth, height: image.naturalHeight, src: image.getAttribute('src') }
-        })
-        const png = readFileSync(`public${directory}${name}`)
-        assert.equal(dimensions.src, `${directory}${name}`)
-        assert.equal(dimensions.width, png.readUInt32BE(16))
-        assert.equal(dimensions.height, png.readUInt32BE(20))
-        assert.equal(await figure.locator('..').getAttribute('href'), `${directory}${name}`)
+      assert.deepEqual(videoRequests, [], 'Do not download 48 video slots when opening the article')
+      const report = page.locator('.wnm3d-report')
+      assert.equal(await report.count(), 1)
+      const rendered = await report.evaluate((report, leaf) => ({
+        blocks: [...report.querySelectorAll(leaf)].map(node => node.textContent),
+        videos: [...report.querySelectorAll('video')].map(video => (video.getAttribute('src') || video.querySelector('source').getAttribute('src')).split('#')[0]),
+        images: [...report.querySelectorAll('img')].map(image => image.getAttribute('src')),
+        sections: [...report.querySelectorAll(':scope > section')].map(section => ({ id: section.id, videos: section.querySelectorAll('video').length, images: section.querySelectorAll('img').length })),
+        h2: [...report.querySelectorAll('h2')].map(heading => heading.id),
+      }), leaf)
+      const hashes = new Set(rendered.blocks.map(normalize).map(hash))
+      for (const expected of manifest.sourceBlocks) assert.ok(hashes.has(expected), `Missing source text block ${expected}`)
+      assert.deepEqual(rendered.videos, manifest.videos)
+      assert.deepEqual(rendered.images, manifest.images)
+      assert.deepEqual(rendered.sections, manifest.sections)
+      assert.deepEqual(rendered.h2, manifest.h2)
+      assert.deepEqual(await report.locator('.wnm-comparison-case').evaluateAll(cases => cases.map(item => Number(item.dataset.comparisonCase))), manifest.cases)
+      assert.ok((await report.locator('.wnm-comparison-case').evaluateAll(cases => cases.every(item => item.querySelectorAll('video').length === 2))))
+      assert.equal(await report.locator('.early-stop-case').count(), 6)
+      assert.ok((await report.locator('.early-stop-case').evaluateAll(cases => cases.every(item => item.querySelectorAll('video').length === 2 && item.querySelector('.instruction').textContent.length > 100))))
+      assert.equal(await report.locator('#stage23-full-cases .wnm-paired-report > details').count(), 8)
+      assert.equal(await report.locator('#stage23-full-cases video').count(), 16)
+      assert.equal(await report.locator('video:not([preload="none"])').count(), 0)
+      assert.equal(await report.locator('table:not(.table-wrap > table)').count(), 0)
+      assert.equal(await report.locator('a[href$=".json"],a[href$=".jsonl"],a[href$=".md"],a[href$=".html"]').count(), 0)
+      const brokenAnchors = await report.locator('a[href^="#"]').evaluateAll(links => links.map(link => link.getAttribute('href').slice(1)).filter(id => !document.getElementById(id)))
+      assert.deepEqual(brokenAnchors, [])
+
+      await page.screenshot({ path: `/tmp/wnm3d-full-${language}-${width}.png` })
+      await report.locator('details').evaluateAll(items => items.forEach(item => { item.open = true }))
+      await report.locator('img').evaluateAll(images => images.forEach(image => { image.loading = 'eager' }))
+      const images = await report.locator('img').evaluateAll(images => Promise.all(images.map(async image => {
+        await image.decode()
+        return { src: image.getAttribute('src'), width: image.naturalWidth, height: image.naturalHeight }
+      })))
+      assert.ok(images.every(image => image.width > 0 && image.height > 0), 'Every original figure must render')
+      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false, `${language} ${width}px overflow with all cases expanded`)
+      const tocCount = await report.locator('h2,h3').count()
+      const toc = page.locator(width < 1024 ? '.article-mobile-toc' : 'aside')
+      if (width < 1024) await toc.locator('summary').click()
+      assert.equal(await toc.locator('a').count(), tocCount)
+      const last = toc.locator('a').last()
+      const target = await last.getAttribute('href')
+      await last.click()
+      assert.equal(new URL(page.url()).hash, target)
+      if (width < 1024) await toc.locator('summary').click()
+
+      if (language === 'zh' && width === 1440) {
+        const seen = new Set()
+        for (let index = 0; index < manifest.videos.length; index++) {
+          const url = manifest.videos[index]
+          if (seen.has(url)) continue
+          const asset = manifest.assets.find(asset => asset.url === url)
+          await playVideo(report.locator('video').nth(index), asset)
+          seen.add(url)
+          console.log(`Playback ${seen.size}/46: ${url.slice(directory.length)}`)
+        }
+        assert.equal(seen.size, 46)
+      } else {
+        for (const selector of ['.wnm-comparison-case video', '.early-stop-case video', '#stage23-full-cases video', '#type-three video']) {
+          const video = report.locator(selector).first()
+          const url = await video.evaluate(video => (video.getAttribute('src') || video.querySelector('source').getAttribute('src')).split('#')[0])
+          await playVideo(video, manifest.assets.find(asset => asset.url === url))
+        }
       }
-      assert.equal(await prose.locator('video').count(), 3)
-      for (const [index, [name, expectedWidth, expectedHeight, duration]] of media.entries()) {
-        const video = prose.locator('video').nth(index)
-        await video.scrollIntoViewIfNeeded()
-        await page.waitForFunction(index => document.querySelectorAll('.article-prose video')[index].readyState >= 2, index)
-        const info = await video.evaluate(video => ({ width: video.videoWidth, height: video.videoHeight, duration: video.duration, src: video.currentSrc, poster: video.poster }))
-        assert.deepEqual([info.width, info.height], [expectedWidth, expectedHeight])
-        assert.ok(Math.abs(info.duration - duration) < 0.1)
-        assert.ok(info.src.endsWith(`${directory}${name}`))
-        const poster = await page.request.get(info.poster)
-        assert.equal(poster.status(), 200)
-        assert.ok(poster.headers()['content-type'].startsWith('image/'))
-        await video.evaluate(video => { video.muted = true; return video.play() })
-        await page.waitForFunction(index => document.querySelectorAll('.article-prose video')[index].currentTime > 0.25, index)
-        const ink = await video.evaluate(video => {
-          video.pause()
-          const canvas = document.createElement('canvas')
-          canvas.width = 160
-          canvas.height = 100
-          const ctx = canvas.getContext('2d')
-          ctx.drawImage(video, 0, 0, canvas.width, canvas.height)
-          const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data
-          let visible = 0
-          for (let i = 0; i < pixels.length; i += 4) if (Math.max(pixels[i], pixels[i + 1], pixels[i + 2]) > 40) visible++
-          return visible / (canvas.width * canvas.height)
-        })
-        assert.ok(ink > 0.05, `${name} must show actual video frames`)
-        const bounds = await video.boundingBox()
-        assert.ok(Math.abs(bounds.width / bounds.height - expectedWidth / expectedHeight) < 0.03)
+
+      for (const [name, selector] of [['blockage', '.wnm-comparison-case'], ['early-stop', '.early-stop-case'], ['closed-loop', '.wnm-paired-report > details']]) {
+        await report.locator(selector).first().scrollIntoViewIfNeeded()
+        await page.screenshot({ path: `/tmp/wnm3d-full-${name}-${language}-${width}.png` })
       }
-      assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false)
-      if (width < 1024) {
-        await page.locator('.article-mobile-toc summary').click()
-        assert.equal(await page.locator('.article-mobile-toc a').count(), 7)
-        await page.locator('.article-mobile-toc a').last().click()
-        assert.ok(new URL(page.url()).hash.startsWith('#section-'))
-      }
-      await page.goto(`${origin}/articles/${slug}/`, { waitUntil: 'networkidle' })
-      await page.screenshot({ path: `/tmp/wnm3d-blog-${language}-${width}.png` })
-      await page.locator('.article-prose table').scrollIntoViewIfNeeded()
-      await page.screenshot({ path: `/tmp/wnm3d-blog-table-${language}-${width}.png` })
       await page.goto(`${origin}/articles/`, { waitUntil: 'networkidle' })
       assert.equal(await page.getByRole('link', { name: data.title, exact: true }).count(), 1)
-      console.log(`Passed: ${language} ${width}px, source counts, native-resolution figures, 3 videos, TOC, listing, and no horizontal page overflow.`)
+      console.log(`Passed: ${language} ${width}px, 855 source blocks, 48 video slots, 52 figures, complete cases, TOC, listing, and no overflow.`)
       await context.close()
     }
   }

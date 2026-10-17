@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 380">
+    <rect width="800" height="380" fill="white"/>
+    <g font-family="Helvetica,Arial,sans-serif" fill="#2f3437">
+    <text x="22" y="27" font-size="17">q0018 | Measured execution trajectory</text>
+    <polyline points="433.91,290.00 429.34,288.46 424.82,286.73 420.50,284.60 416.65,281.91 413.47,278.69 411.15,274.93 409.47,270.78 408.45,266.37 408.79,261.76 409.11,257.08 409.38,252.33 409.74,247.57 410.19,242.85 410.64,238.22 411.02,233.65 411.39,229.30 411.64,224.87 411.75,220.34 411.72,215.66 411.68,210.89 411.67,206.17 411.64,201.57 411.58,197.02 411.50,192.74 411.35,188.25 411.09,183.67 410.78,179.01 410.45,174.28 410.07,169.62 409.60,165.21 408.85,161.10 408.00,157.84 406.66,153.97 404.98,150.34 403.24,147.40 401.82,145.36 400.83,144.25 400.37,143.82 400.19,143.72 400.23,143.74 400.23,143.74" fill="none" stroke="#52616b" stroke-width="2.5" stroke-linejoin="round"/>
+    <circle cx="433.91" cy="290.00" r="5" fill="#52616b"/><text x="442.91" y="281.00" font-size="14">Start</text>
+    <rect x="395.23" y="138.74" width="10" height="10" fill="#935747"/><text x="409.23" y="162.74" font-size="14">STOP</text>
+    <circle cx="366.09" cy="50.00" r="7" fill="white" stroke="#697c59" stroke-width="2.5"/><text x="377.09" y="41.00" font-size="14">Goal</text>
+    <text x="22" y="335" font-size="13">XY projection with equal scale; no obstacle map or reference route shown.</text>
+    <text x="22" y="357" font-size="13">Reported goal distance is the evaluator pathfinding metric, not a line measured on this plot.</text>
+    </g></svg>

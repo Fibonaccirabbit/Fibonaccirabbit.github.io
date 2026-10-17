@@ -58,7 +58,7 @@ export default function ArticleDetail() {
       <Link as={RouterLink} to="/articles" display="inline-flex" alignItems="center" gap={2} mb={5} fontSize="xs">
         <FaArrowLeft /> {t('articles.back')}
       </Link>
-      <Box bg={colors.bg} color={colors.text} border="1px solid" borderColor={colors.border} borderRadius="md" overflow="hidden">
+      <Box bg={colors.bg} color={colors.text} border="1px solid" borderColor={colors.border} borderRadius="md" overflow="clip">
         <Flex bg={colors.header} borderBottom="1px solid" borderColor={colors.border} px={[3, 5]} py={3} gap={3} align="center" wrap="wrap">
           <HStack spacing={1.5} aria-hidden="true">
             {['#bf616a', '#ebcb8b', '#a3be8c'].map(color => <Box key={color} w="9px" h="9px" borderRadius="full" bg={color} />)}
@@ -86,7 +86,7 @@ export default function ArticleDetail() {
             </Box>
             <Box className="article-prose" dangerouslySetInnerHTML={{ __html: content.html }} />
           </Box>
-          <Box as="aside" display={{ base: 'none', lg: 'block' }} position="sticky" top="100px" alignSelf="start" borderLeft="1px solid" borderColor={colors.border} pl={5}>
+          <Box as="aside" display={{ base: 'none', lg: 'block' }} position="sticky" top="100px" maxH="calc(100dvh - 140px)" overflowY="auto" alignSelf="start" borderLeft="1px solid" borderColor={colors.border} pl={5}>
             <Text fontSize="xs" color={colors.command} mb={3}>{isChinese ? '目录' : 'Contents'}</Text>
             <Flex as="nav" aria-label={isChinese ? '文章目录' : 'Contents'} direction="column" gap={2}>{tableOfContents}</Flex>
           </Box>

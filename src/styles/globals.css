@@ -113,5 +113,33 @@ code {
 .article-mobile-toc summary { list-style:none; }
 .article-mobile-toc summary::-webkit-details-marker { display:none; }
 .article-mobile-toc[open] summary svg { transform:rotate(180deg); }
+.wnm3d-report section { margin-top:44px; min-width:0; }
+.wnm3d-report [id] { scroll-margin-top:100px; }
+.wnm3d-report h4 { margin:28px 0 14px; font-size:16px; font-weight:600; }
+.wnm3d-report h5 { margin:20px 0 12px; font-size:14px; font-weight:600; }
+.wnm3d-report .number { display:block; margin-bottom:6px; color:var(--secondary-text); font-size:12px; }
+.wnm3d-report .failure-part,.wnm3d-report .early-stop-case,.wnm3d-report .wnm-comparison-case { margin-top:36px; padding-top:18px; border-top:1px solid var(--border-color); }
+.wnm3d-report .case-goal { display:block; font-size:14px; font-weight:400; color:var(--secondary-text); }
+.wnm3d-report .table-wrap { max-width:100%; overflow-x:auto; margin:24px 0; }
+.wnm3d-report table { display:table; width:100%; margin:0; }
+.wnm3d-report .case-table { min-width:570px; }
+.wnm3d-report .num { text-align:right; font-variant-numeric:tabular-nums; }
+.wnm3d-report figure { margin:24px 0; }
+.wnm3d-report figure img { display:block; width:100%; height:auto; }
+.wnm3d-report figcaption,.wnm3d-report .note,.wnm3d-report .small,.wnm3d-report .case-summary,.wnm3d-report .instruction-label,.wnm3d-report .target-line { margin-top:12px; color:var(--secondary-text); font-size:13px; line-height:1.8; }
+.wnm3d-report .instruction { padding:14px 18px; border-left:2px solid var(--accent-color); background:var(--hover-color); font-size:13px; line-height:1.8; }
+.wnm3d-report .finding { margin:28px 0; padding:20px 0 0; border-top:1px solid var(--border-color); }
+.wnm3d-report details { margin:20px 0; padding:14px 0; border-top:1px solid var(--border-color); }
+.wnm3d-report summary { cursor:pointer; color:var(--accent-color); font-size:13px; line-height:1.8; }
+.wnm3d-report details[open] > summary { margin-bottom:18px; }
+.wnm3d-report .stage23-pair,.wnm3d-report .pair { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px; }
+.wnm3d-report .stage23-pair figure,.wnm3d-report .pair section { margin:0; min-width:0; }
+.wnm3d-report .diagram { padding:12px; background:white; color:#26343a; overflow-x:auto; }
+.wnm3d-report .diagram svg { display:block; width:100%; height:auto; }
+.wnm3d-report .media-links,.wnm3d-report .links { display:flex; flex-wrap:wrap; gap:8px 18px; font-size:13px; }
+.wnm3d-report .wnm-local-source { color:var(--secondary-text); }
+.wnm3d-report .map { max-height:340px; object-fit:contain; }
+.wnm3d-report .wnm-paired-report { display:block; padding:0; }
+@media(max-width:768px) { .wnm3d-report .stage23-pair,.wnm3d-report .pair { grid-template-columns:1fr; } .wnm3d-report th,.wnm3d-report td { padding:9px 8px; } }
 @media(max-width:480px) { .article-prose { font-size:14px; } .article-prose h2 { font-size:19px; } }
 @media(prefers-reduced-motion:reduce) { *,*::before,*::after { animation:none !important; transition:none !important; scroll-behavior:auto !important; } }
