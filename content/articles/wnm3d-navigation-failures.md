@@ -11,7 +11,7 @@ tags:
   - World Models
   - Vision-Language Navigation
   - Failure Analysis
-draft: false
+draft: true
 ---
 The full original report follows in Chinese. All cases, instructions, videos, trajectory figures, tables, and qualifications are retained; this is not an abridged English translation. Raw execution logs and audit files remain local.
 

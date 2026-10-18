@@ -5,6 +5,7 @@ import matter from 'gray-matter'
 import { chromium } from 'playwright'
 
 const origin = (process.env.SITE_URL || 'http://127.0.0.1:5173').replace(/\/$/, '')
+const includeDrafts = process.env.VERIFY_DRAFTS !== 'false'
 const slug = 'wnm3d-navigation-failures'
 const directory = `/media/${slug}/full/`
 const manifest = JSON.parse(readFileSync('scripts/fixtures/wnm3d-detail-coverage.json', 'utf8'))
@@ -88,8 +89,9 @@ try {
   for (const language of ['zh', 'en']) {
     const root = language === 'zh' ? 'content/zh' : 'content'
     const { data, content } = matter(readFileSync(`${root}/articles/${slug}.md`, 'utf8'))
+    const notFound = JSON.parse(readFileSync(`src/locales/${language}.json`, 'utf8')).articles.notFound
     assert.equal(data.slug, slug)
-    assert.equal(data.draft, false)
+    assert.equal(typeof data.draft, 'boolean')
     assert.equal(/\/Users\/|\/home\/|file:\/\/|<script|\son\w+\s*=/i.test(content), false)
     if (language === 'en') assert.ok(content.includes('The full original report follows in Chinese.'))
 
@@ -101,6 +103,19 @@ try {
       page.on('pageerror', error => errors.push(error.message))
       page.on('request', request => { if (/\.mp4(?:[?#]|$)/.test(request.url())) videoRequests.push(request.url()) })
       const response = await page.goto(`${origin}/articles/${slug}/`, { waitUntil: 'networkidle' })
+      if (data.draft && !includeDrafts) {
+        assert.ok([200, 404].includes(response.status()))
+        await page.getByRole('heading', { name: notFound, exact: true }).waitFor()
+        assert.equal(await page.locator('.article-prose').count(), 0)
+        assert.equal(await page.getByRole('heading', { name: data.title, exact: true }).count(), 0)
+        await page.goto(`${origin}/articles/`, { waitUntil: 'networkidle' })
+        assert.equal(await page.locator(`a[href="/articles/${slug}"]`).count(), 0)
+        assert.equal(await page.getByRole('link', { name: data.title, exact: true }).count(), 0)
+        assert.deepEqual(videoRequests, [])
+        console.log(`Passed hidden: ${language} ${width}px, no public listing, article body, or video requests.`)
+        await context.close()
+        continue
+      }
       assert.equal(response.status(), 200)
       assert.equal(await page.locator('h1').innerText(), data.title)
       assert.deepEqual(videoRequests, [], 'Do not download all video slots when opening the article')
