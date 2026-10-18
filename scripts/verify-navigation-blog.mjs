@@ -65,10 +65,25 @@ try {
   }
   const files = readdirSync(`public${directory}`, { recursive: true }).filter(name => /\.[^/]+$/.test(name))
   assert.ok(files.every(name => /\.(png|jpe?g|svg|mp4|gif|pdf)$/i.test(name)), 'Raw logs and audit files must stay local')
-  assert.equal(manifest.sourceBlocks.length, 855, 'Coverage must include the source and the full paired supplement')
-  assert.equal(manifest.videos.length, 48)
-  assert.equal(new Set(manifest.videos).size, 46)
-  assert.equal(manifest.images.length, 52)
+  assert.equal(manifest.originalSourceBlocks.length, 855, 'Retain the complete previously published source and paired supplement')
+  for (const block of manifest.originalSourceBlocks) assert.ok(manifest.sourceBlocks.includes(block))
+  assert.equal(manifest.sourceBlocks.length, 1067)
+  assert.equal(manifest.videos.length, 50)
+  assert.equal(new Set(manifest.videos).size, 48)
+  assert.equal(manifest.images.length, 55)
+  assert.deepEqual(manifest.geometry.referenceRows, [
+    ['T 型三分支', 648, 405, '62.50%'],
+    ['十字型四分支', 254, 178, '70.08%'],
+    ['Y 型三分支', 83, 51, '61.45%'],
+    ['两侧受限窄通行带', 4166, 2196, '52.71%'],
+    ['全部任务', 5000, 2598, '51.96%'],
+  ])
+  assert.deepEqual(manifest.geometry.contextRows, [
+    ['T 型三分支', 245, 67, 61, 62, 13, 42],
+    ['十字型四分支', 111, 44, 26, 22, 2, 17],
+    ['Y 型三分支', 24, 11, 4, 5, 1, 3],
+    ['合计', 380, 122, 91, 89, 16, 62],
+  ])
 
   for (const language of ['zh', 'en']) {
     const root = language === 'zh' ? 'content/zh' : 'content'
@@ -88,7 +103,7 @@ try {
       const response = await page.goto(`${origin}/articles/${slug}/`, { waitUntil: 'networkidle' })
       assert.equal(response.status(), 200)
       assert.equal(await page.locator('h1').innerText(), data.title)
-      assert.deepEqual(videoRequests, [], 'Do not download 48 video slots when opening the article')
+      assert.deepEqual(videoRequests, [], 'Do not download all video slots when opening the article')
       const report = page.locator('.wnm3d-report')
       assert.equal(await report.count(), 1)
       const rendered = await report.evaluate((report, leaf) => ({
@@ -104,6 +119,21 @@ try {
       assert.deepEqual(rendered.images, manifest.images)
       assert.deepEqual(rendered.sections, manifest.sections)
       assert.deepEqual(rendered.h2, manifest.h2)
+      for (const [id, rows] of Object.entries({
+        'geometry-reference-table': manifest.geometry.referenceRows,
+        'geometry-actual-table': manifest.geometry.actualRows,
+        'geometry-outcome-table': manifest.geometry.outcomeRows,
+        'geometry-strata-table': manifest.geometry.strataRows,
+        'geometry-context-table': manifest.geometry.contextRows,
+      })) {
+        const cells = await report.locator('#' + id + ' tbody tr').evaluateAll(rows => rows.map(row => [...row.cells].map(cell => cell.textContent)))
+        assert.deepEqual(cells, rows.map(row => row.map(String)), id)
+      }
+      assert.equal(await report.locator('#scene-geometry video').count(), 2)
+      assert.equal(await report.locator('#scene-geometry img').count(), 3)
+      for (const image of await report.locator('#scene-geometry a > img').all()) {
+        assert.equal(await image.getAttribute('src'), await image.locator('..').getAttribute('href'), 'Examples must link to full-resolution original figures')
+      }
       assert.deepEqual(await report.locator('.wnm-comparison-case').evaluateAll(cases => cases.map(item => Number(item.dataset.comparisonCase))), manifest.cases)
       assert.ok((await report.locator('.wnm-comparison-case').evaluateAll(cases => cases.every(item => item.querySelectorAll('video').length === 2))))
       assert.equal(await report.locator('.early-stop-case').count(), 6)
@@ -143,24 +173,24 @@ try {
           const asset = manifest.assets.find(asset => asset.url === url)
           await playVideo(report.locator('video').nth(index), asset)
           seen.add(url)
-          console.log(`Playback ${seen.size}/46: ${url.slice(directory.length)}`)
+          console.log(`Playback ${seen.size}/48: ${url.slice(directory.length)}`)
         }
-        assert.equal(seen.size, 46)
+        assert.equal(seen.size, 48)
       } else {
-        for (const selector of ['.wnm-comparison-case video', '.early-stop-case video', '#stage23-full-cases video', '#type-three video']) {
+        for (const selector of ['#scene-geometry video', '.wnm-comparison-case video', '.early-stop-case video', '#stage23-full-cases video', '#type-three video']) {
           const video = report.locator(selector).first()
           const url = await video.evaluate(video => (video.getAttribute('src') || video.querySelector('source').getAttribute('src')).split('#')[0])
           await playVideo(video, manifest.assets.find(asset => asset.url === url))
         }
       }
 
-      for (const [name, selector] of [['blockage', '.wnm-comparison-case'], ['early-stop', '.early-stop-case'], ['closed-loop', '.wnm-paired-report > details']]) {
+      for (const [name, selector] of [['geometry', '#geometry-reference-statistics'], ['scene-examples', '#scene-example-heading'], ['t-case', '#t-failure-alignment'], ['blockage', '.wnm-comparison-case'], ['early-stop', '.early-stop-case'], ['closed-loop', '.wnm-paired-report > details']]) {
         await report.locator(selector).first().scrollIntoViewIfNeeded()
         await page.screenshot({ path: `/tmp/wnm3d-full-${name}-${language}-${width}.png` })
       }
       await page.goto(`${origin}/articles/`, { waitUntil: 'networkidle' })
       assert.equal(await page.getByRole('link', { name: data.title, exact: true }).count(), 1)
-      console.log(`Passed: ${language} ${width}px, 855 source blocks, 48 video slots, 52 figures, complete cases, TOC, listing, and no overflow.`)
+      console.log(`Passed: ${language} ${width}px, all 855 previous source blocks retained, geometry statistics and examples, 50 video slots, 55 figures, TOC, listing, and no overflow.`)
       await context.close()
     }
   }

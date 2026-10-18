@@ -1,0 +1,25 @@
+<section id="scene-geometry">
+  <h2>场景结构与失败分布</h2>
+  <p>受阻、提前停止和到达目标后未正确结束，描述的是任务发生了什么；T 型、十字型、Y 型和窄通行带，描述的是路线涉及什么空间结构。这两层分类不能互相替代。</p>
+  <h3 id="geometry-reference-statistics">参考路线涉及哪些空间结构</h3>
+  <p>以下统计来自完整 5,000 条未见场景任务。主表按推理前已固定的参考路线是否涉及某种几何候选分组，而不是按模型最终走到哪里分组。失败率的分母是该行任务数，不是全部失败数。</p>
+  <div class="table-wrap"><table id="geometry-reference-table"><thead><tr><th>参考路线中的几何候选</th><th class="num">任务数</th><th class="num">失败数</th><th class="num">失败率</th></tr></thead><tbody></tbody></table></div>
+  <p><strong>这些标签可以重叠，不能相加。</strong>路线包含某个候选区域，不等于模型已经到达那里，也不等于失败恰好发生在那里。“T 型／十字／Y 型”是二维自由空间的连通形态候选，家具和货架之间也可能形成这样的结构，不都是建筑走廊路口。</p>
+  <details><summary>几何候选与四类失败终局的完整交叉统计</summary>
+    <div class="table-wrap"><table id="geometry-outcome-table" class="case-table"><thead><tr><th>参考路线候选</th><th class="num">任务数</th><th class="num">成功</th><th class="num">未到目标便 STOP</th><th class="num">持续受阻失败</th><th class="num">到过目标却未正确结束</th><th class="num">其他碰撞失败</th></tr></thead><tbody></tbody></table></div>
+    <p class="note">同一行内的终局互斥；不同几何标签之间不互斥。提前 STOP 的任务也可能尚未到达参考路线上的候选区域。</p>
+  </details>
+  <details><summary>实际走过的区域：为什么分母与参考路线不同</summary>
+    <div class="table-wrap"><table id="geometry-actual-table"><thead><tr><th>实际经过的几何候选</th><th class="num">任务数</th><th class="num">失败数</th><th class="num">失败率</th></tr></thead><tbody></tbody></table></div>
+    <p>实际是否经过某区域受先前行动、提前停止、碰撞与轨迹长度影响，不能与固定参考路线的暴露混作同一个风险估计，也不能把“经过该处后失败”改写成“在该处首次出错”。</p>
+  </details>
+  <h3 id="geometry-comparable-tasks">同场景下的可比任务</h3>
+  <p>较长或较难的路线，本来就可能经过更多复杂结构。为减少这些混杂，下面只比较同一场景、同一官方难度和同一参考路线长度档内，同时存在几何阳性与无阳性任务的单元。差值为几何阳性减无阳性的失败率，单位为百分点。</p>
+  <div class="table-wrap"><table id="geometry-strata-table" class="case-table"><thead><tr><th>参考路线候选</th><th class="num">可比任务数</th><th class="num">场景数</th><th class="num">分层失败率差</th><th>探索性 95% 场景簇区间</th></tr></thead><tbody></tbody></table></div>
+  <p>窄通行带在 430 条共同支持任务中对应较高的失败率，但只覆盖全量任务的 8.6%，不能外推为全部场景的因果效应。T 型与十字型的区间跨零，尚不足以支持独立高风险结论；Y 型只有 43 条可比任务，方向反转也不解释为保护作用。区间未作多重比较校正，无阳性见证也不等于已认证的开阔区域。</p>
+  <h3 id="geometry-node-context">380 个候选节点的可见语境</h3>
+  <p>另一份固定清单包含 380 个候选节点，来自 228 个场景。这是节点数量，不是任务数。已有真实记录提供了其中 318 个节点的 441 个视角；其余 62 个没有合格记录，仍保留为未知。</p>
+  <div class="table-wrap"><table id="geometry-context-table" class="case-table"><thead><tr><th>二维候选</th><th class="num">节点数</th><th class="num">家具／陈列设施为主</th><th class="num">墙体走廊／门口</th><th class="num">混合</th><th class="num">信息不足</th><th class="num">无合格记录</th></tr></thead><tbody></tbody></table></div>
+  <p>上表的可见语境来自固定范围内的 AI 辅助描述，不是独立人工认证的建筑类型真值。家具可见不证明某个占据岛一定由家具产生，门框可见也不证明所有出口都已看全。16 个画面信息不足的节点均只有一个合格方向，不能强行分类；这些计数也不能用来估计全部 5,000 条任务的建筑类型比例。</p>
+  <div id="geometry-example-content"></div>
+</section>
